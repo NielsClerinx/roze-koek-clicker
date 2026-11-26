@@ -10,8 +10,9 @@
 <style>
 :root { --pink:#F26B9E; --deep:#E8457C; --choco:#5A2E3A; --soft:#8C6470; --bg1:#FFE9F1; --bg2:#FFC4D8; }
 * { box-sizing:border-box; }
+html { background:var(--bg2); }
 body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--choco);
-  background: linear-gradient(var(--bg1), var(--bg2)) fixed; min-height:100vh; }
+  background: linear-gradient(var(--bg1), var(--bg2)); min-height:100vh; }
 main { max-width:520px; margin:0 auto; padding:32px 16px 48px; text-align:center; }
 img.logo { width:120px; height:120px; border-radius:28px; box-shadow:0 8px 24px rgba(90,46,58,.18); }
 h1 { font-size:2rem; margin:16px 0 4px; color:var(--deep); }

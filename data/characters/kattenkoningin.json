@@ -6,19 +6,57 @@
   "description": "Geeft iedereen een kusje, ook als je er niet om vraagt. Haar siamees Brompot kijkt altijd alsof hij net te vroeg wakker gemaakt is, maar is stiekem de beste jager van de bakkerij.",
   "intro": "Mwah! Brompot en ik komen helpen. Hij is een beetje chagrijnig, maar dat is normaal.",
   "unlock_cost": 500000,
-  "unlock_condition": {"type": "building_count", "building": "industriele_bakkerij", "count": 1},
+  "unlock_condition": {
+    "type": "building_count",
+    "building": "industriele_bakkerij",
+    "count": 1
+  },
   "passive_bonus": [
-    {"type": "building_mult", "target": "industriele_bakkerij", "value": 1.5},
-    {"type": "offline_cap_add", "value": 7200}
+    {
+      "type": "building_mult",
+      "target": "industriele_bakkerij",
+      "value": 1.5
+    },
+    {
+      "type": "offline_cap_add",
+      "value": 7200
+    }
   ],
-  "ability": {"type": "instant_bake", "name": "Brompots buit", "description": "Brompot sleept een buit binnen: meteen 20 minuten productie.", "value": 20, "duration": 0, "cooldown": 900},
+  "ability": {
+    "type": "instant_bake",
+    "name": "Brompots buit",
+    "description": "Brompot sleept een buit binnen: meteen 20 minuten productie.",
+    "value": 20,
+    "duration": 0,
+    "cooldown": 900
+  },
   "look": {
-    "skin": "#F3D0B8", "hair": "#D9B77C", "hair_style": "long_wavy", "hair_length": "none", "beard": "",
-    "brows": "relaxed", "brow_color": "#A98457", "brow_width": 3.5, "eyes": "#5A3A22", "lashes": true, "nose_size": 0.75,
-    "cheeks": true, "freckles": true, "nose_ring": true, "mouth_style": "pout", "lips": "#D9707E",
-    "build": "slim", "shirt": "#1F1D2B", "shirt_style": "camisole", "sleeves": "none", "bracelet": true,
-    "skirt": "floral", "skirt_color": "#1C1A24", "pants": "#1C1A24",
-    "ability_pose": "kiss", "companion": "cat"
+    "skin": "#F3D0B8",
+    "hair": "#E0C08A",
+    "hair_style": "long_wavy",
+    "hair_length": "none",
+    "beard": "",
+    "brows": "relaxed",
+    "brow_color": "#B08F62",
+    "brow_width": 2.2,
+    "eyes": "#6B4A2E",
+    "lashes": true,
+    "cheeks": true,
+    "freckles": true,
+    "nose_ring": true,
+    "mouth_style": "pout",
+    "lips": "#E07C8C",
+    "build": "slim",
+    "shirt": "#1F1D2B",
+    "shirt_style": "camisole",
+    "sleeves": "none",
+    "bracelet": true,
+    "skirt": "floral",
+    "skirt_color": "#1C1A24",
+    "pants": "#1C1A24",
+    "ability_pose": "kiss",
+    "companion": "cat",
+    "face_style": "soft"
   },
   "animation": "friend_figure"
 }

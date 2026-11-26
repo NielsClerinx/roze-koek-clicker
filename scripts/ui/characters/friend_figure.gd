@@ -215,13 +215,24 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 		_capsule(hand_r, hand_r + Vector2(14, -10) * _u, 5 * _u, skin, true)
 	# --- Nek en hoofd
 	_capsule(_P(feet, head_o, 0, -190), _P(feet, o, 0, -160), 20 * _u, skin.darkened(0.08), false)
-	for side in [-1, 1]:
-		_ellipse_ol(_P(feet, head_o, 80 * side, -248), Vector2(13, 18) * _u, skin)
+	var soft: bool = look.get("face_style", "") == "soft"
+	if look.get("hair_style", "") != "long_wavy":
+		for side in [-1, 1]:
+			_ellipse_ol(_P(feet, head_o, 80 * side, -248), Vector2(13, 18) * _u, skin)
 	if look.get("earring", false):
 		draw_circle(_P(feet, head_o, -84, -236), 4.0 * _u, Color("#F2D88A"))
 		draw_circle(_P(feet, head_o, -85, -237), 1.5 * _u, Color.WHITE)
 	var bald: bool = look.get("hair_style", "") == "bald"
-	_ellipse_ol(_P(feet, head_o, 0, -255 - (6 if bald else 0)), Vector2(80, 90 + (6 if bald else 0)) * _u, skin)
+	if soft:
+		# Zachter, smaller gezicht met een rondere kin
+		var face := PackedVector2Array()
+		for i in 40:
+			var a := TAU * i / 40.0
+			var rx := 76.0 - maxf(sin(a), 0.0) * 8.0
+			face.append(_P(feet, head_o, cos(a) * rx, -256 + sin(a) * (88.0 if sin(a) > 0 else 90.0)))
+		_poly_ol(face, skin)
+	else:
+		_ellipse_ol(_P(feet, head_o, 0, -255 - (6 if bald else 0)), Vector2(80, 90 + (6 if bald else 0)) * _u, skin)
 	if bald:
 		# Glimmende schedel
 		draw_set_transform(_P(feet, head_o, -26, -318), -0.5, Vector2(1.0, 0.5))
@@ -230,7 +241,7 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 		draw_circle(_P(feet, head_o, 4, -334), 5 * _u, Color(1, 1, 1, 0.6))
 	if look.get("cheeks", false):
 		for side in [-1, 1]:
-			_ellipse(_P(feet, head_o, 48 * side, -226), Vector2(14, 9) * _u, Color("#F08C8C", 0.45))
+			_ellipse(_P(feet, head_o, 48 * side, -226), Vector2(14, 9) * _u, Color("#F08C8C", 0.28 if soft else 0.45))
 	if look.get("beard", "") == "short":
 		var bc := c("hair")
 		var pts := PackedVector2Array()
@@ -312,7 +323,7 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 			_capsule(_P(feet, head_o, 6 * side, -218), _P(feet, head_o, 36 * side, -208 + smile * -6), 9 * _u, hair, false)
 	if look.get("freckles", false):
 		for q in [Vector2(-46, -232), Vector2(-38, -224), Vector2(-52, -222), Vector2(40, -232), Vector2(48, -224), Vector2(34, -222), Vector2(-8, -246), Vector2(10, -246)]:
-			draw_circle(_P(feet, head_o, q.x, q.y), 1.9 * _u, Color("#C98A6A", 0.7))
+			draw_circle(_P(feet, head_o, q.x, q.y), 1.5 * _u, Color("#C98A6A", 0.45))
 	if look.get("beard", "") == "":
 		_draw_mouth(_P(feet, head_o, 0, -199), smile, surprise, kiss and point > 0.1)
 	# --- Haar voor (achterover gekamd, licht wijkende haarlijn)
@@ -323,14 +334,21 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 	elif not bald:
 		_draw_hair_front(feet, head_o, hair, sway)
 	# --- Neus
-	var ns := float(look.get("nose_size", 1.0))
-	_ellipse_ol(_P(feet, head_o, 2, -234 + (1.0 - ns) * 8), Vector2(13, 16) * _u * ns, skin.darkened(0.06))
-	draw_circle(_P(feet, head_o, -2, -240), 3.5 * _u, Color(1, 1, 1, 0.35))
-	draw_arc(_P(feet, head_o, 2, -228), 8 * _u, 0.3, PI - 0.3, 10, skin.darkened(0.3), 2.5 * _u, true)
+	if soft:
+		# Klein wipneusje
+		draw_arc(_P(feet, head_o, 1, -232), 7 * _u, 0.2, PI - 0.6, 10, skin.darkened(0.28), 2.6 * _u, true)
+		draw_circle(_P(feet, head_o, 0, -240), 2.6 * _u, Color(1, 1, 1, 0.45))
+	else:
+		var ns := float(look.get("nose_size", 1.0))
+		_ellipse_ol(_P(feet, head_o, 2, -234 + (1.0 - ns) * 8), Vector2(13, 16) * _u * ns, skin.darkened(0.06))
+		draw_circle(_P(feet, head_o, -2, -240), 3.5 * _u, Color(1, 1, 1, 0.35))
+		draw_arc(_P(feet, head_o, 2, -228), 8 * _u, 0.3, PI - 0.3, 10, skin.darkened(0.3), 2.5 * _u, true)
 	if look.get("nose_ring", false):
-		draw_arc(_P(feet, head_o, -7, -226), 4.5 * _u, -0.4, PI * 1.3, 12, Color("#E9D9A6"), 2.4 * _u, true)
+		draw_arc(_P(feet, head_o, -6, -229), 3.6 * _u, -0.4, PI * 1.3, 12, Color("#E9D9A6"), 2.4 * _u, true)
 	# --- Ogen
-	for side in [-1, 1]:
+	if soft:
+		_draw_soft_eyes(feet, head_o, point, surprise, smile)
+	for side in ([] if soft else [-1, 1]):
 		var e := _P(feet, head_o, 31 * side, -262)
 		var wink: bool = animation == "happy" and side == 1 and hat_lift > 20.0 and look.get("glasses", "") != ""
 		if _blink > 0.0 or wink:
@@ -355,7 +373,7 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 			else:
 				# Zware oogleden: de intense blik
 				draw_arc(e, 15 * _u, PI * 1.08, PI * 1.92, 12, OUTLINE, 3.5 * _u, true)
-	if look.get("lashes", false):
+	if look.get("lashes", false) and not soft:
 		for side in [-1, 1]:
 			var e2 := _P(feet, head_o, 31 * side, -262)
 			for i in 3:
@@ -369,8 +387,14 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 	var hair_saved := hair
 	hair = brow_col
 	var bt := float(look.get("brow_width", 7.5))
-	_capsule(_P(feet, head_o, -50, -284 - lift), _P(feet, head_o, -14, -276 - lift + (5 if skeptical else 0)), bt * _u, hair, false)
-	_capsule(_P(feet, head_o, 14, -282 - lift - (7 if skeptical else 0)), _P(feet, head_o, 50, -288 - lift - (3 if skeptical else 0)), bt * _u, hair, false)
+	if soft:
+		for side in [-1, 1]:
+			draw_arc(_P(feet, head_o, 31 * side, -268 - lift), 22 * _u, PI * 1.18, PI * 1.82, 14, hair, bt * 1.6 * _u, true)
+		bt = 0.0
+	if bt > 0.0:
+		_capsule(_P(feet, head_o, -50, -284 - lift), _P(feet, head_o, -14, -276 - lift + (5 if skeptical else 0)), bt * _u, hair, false)
+	if bt > 0.0:
+		_capsule(_P(feet, head_o, 14, -282 - lift - (7 if skeptical else 0)), _P(feet, head_o, 50, -288 - lift - (3 if skeptical else 0)), bt * _u, hair, false)
 	hair = hair_saved
 	if look.get("glasses", "") == "wayfarer":
 		_draw_wayfarers(feet, head_o, hat_lift, point)
@@ -744,23 +768,31 @@ func _draw_wavy_back(feet: Vector2, head_o: Vector2, o: Vector2, hair: Color, sw
 			draw_polyline(pts, hair.lightened(0.25 if k != 1 else 0.12), 3 * _u, true)
 
 func _draw_wavy_front(feet: Vector2, head_o: Vector2, hair: Color, sway: float) -> void:
-	# Middenscheiding met gordijnlokken langs het gezicht
+	# Middenscheiding met zachte gordijnlokken; alleen de buitenrand krijgt een dikke lijn
 	for side in [-1, 1]:
-		var pts := PackedVector2Array()
-		pts.append(_P(feet, head_o, 2 * side, -336))
-		for i in 11:
-			var a: float = -PI * 0.5 + side * PI * 0.5 * i / 10.0
-			pts.append(_P(feet, head_o, cos(a) * 88 * side * side, -256 + sin(a) * 82 - 6))
-		pts.append(_P(feet, head_o, 92 * side, -230))
-		pts.append(_P(feet, head_o, (90 + sway * 0.3) * side, -196))
-		pts.append(_P(feet, head_o, 74 * side, -206))
-		pts.append(_P(feet, head_o, 70 * side, -250))
-		pts.append(_P(feet, head_o, 52 * side, -294))
-		pts.append(_P(feet, head_o, 22 * side, -318))
-		_poly_ol(pts, hair)
+		var outer := PackedVector2Array()
+		for i in 13:
+			var a := -PI * 0.5 + PI * 0.5 * i / 12.0
+			outer.append(_P(feet, head_o, cos(a) * 90 * side, -258 + sin(a) * 88 - 4))
+		outer.append(_P(feet, head_o, (94 + sway * 0.3) * side, -200))
+		outer.append(_P(feet, head_o, (88 + sway * 0.3) * side, -176))
+		var inner := PackedVector2Array([
+			_P(feet, head_o, 76 * side, -190), _P(feet, head_o, 74 * side, -226),
+			_P(feet, head_o, 66 * side, -262), _P(feet, head_o, 50 * side, -296),
+			_P(feet, head_o, 26 * side, -320), _P(feet, head_o, 3 * side, -334)])
+		var shape := outer.duplicate()
+		shape.append_array(inner)
+		_poly(shape, hair)
+		draw_polyline(outer, OUTLINE, 3.5 * _u, true)
+		draw_polyline(inner, hair.darkened(0.22), 2.2 * _u, true)
 		for k in 2:
-			draw_arc(_P(feet, head_o, (40 + k * 18) * side, -270), (44 - k * 8) * _u, PI * (1.35 if side < 0 else 1.65) - 0.5, PI * (1.35 if side < 0 else 1.65) + 0.5, 10, hair.lightened(0.28), 3 * _u, true)
-	draw_line(_P(feet, head_o, 0, -320), _P(feet, head_o, 0, -340), hair.darkened(0.25), 3 * _u, true)
+			var hl := PackedVector2Array()
+			for i in 12:
+				var a: float = -PI * 0.5 - side * 0.12 + side * PI * 0.55 * i / 11.0
+				var r := 82.0 + k * 5.0
+				hl.append(_P(feet, head_o, cos(a) * r * side * side, -258 + sin(a) * (r - 2.0)))
+			draw_polyline(hl, hair.lightened(0.3 - k * 0.1), 2.6 * _u, true)
+	draw_line(_P(feet, head_o, 0, -334), _P(feet, head_o, 0, -346), hair.darkened(0.25), 2.5 * _u, true)
 
 func _draw_mouth(m: Vector2, smile: float, surprise: float, kissing: bool) -> void:
 	var lip := Color(str(look.get("lips", "#D9707E")))
@@ -771,15 +803,30 @@ func _draw_mouth(m: Vector2, smile: float, surprise: float, kissing: bool) -> vo
 			grin.append(m + Vector2(cos(a) * 20, sin(a) * 13 * smile) * _u)
 		_poly_ol(grin, Color.WHITE)
 		draw_arc(m, 20 * _u, 0.1, PI - 0.1, 14, lip.darkened(0.2), 3 * _u, true)
-	elif look.get("mouth_style", "") == "pout" or kissing:
+	elif kissing or (look.get("mouth_style", "") == "pout" and look.get("face_style", "") != "soft"):
 		# Tuitlipjes (kusmondje)
-		var k := 1.25 if kissing else 1.0
+		var k := 0.85 if look.get("face_style", "") == "soft" else (1.25 if kissing else 1.0)
 		_ellipse_ol(m + Vector2(2, -5) * _u, Vector2(11, 6) * _u * k, lip)
 		_ellipse_ol(m + Vector2(2, 4) * _u, Vector2(12, 7) * _u * k, lip.darkened(0.05))
 		_ellipse(m + Vector2(2, 0) * _u, Vector2(4, 2.2) * _u * k, lip.darkened(0.45))
 		draw_circle(m + Vector2(-3, -6) * _u, 2.2 * _u, Color(1, 1, 1, 0.45))
 	elif surprise > 0.3:
 		_ellipse(m + Vector2(0, 2) * _u, Vector2(8, 10 * surprise) * _u, Color("#7A2E3A"))
+	elif look.get("face_style", "") == "soft":
+		# Zachte glimlach met volle lippen en een beetje glans
+		var upper := PackedVector2Array([m + Vector2(-15, 0) * _u, m + Vector2(-6, -5) * _u, m + Vector2(0, -3) * _u, m + Vector2(6, -5) * _u, m + Vector2(15, 0) * _u, m + Vector2(0, 2) * _u])
+		draw_colored_polygon(upper, lip.darkened(0.08))
+		var lower := PackedVector2Array()
+		for i in 11:
+			var a := PI * i / 10.0
+			lower.append(m + Vector2(cos(a) * 14, 1 + sin(a) * 7) * _u)
+		draw_colored_polygon(lower, lip)
+		var line := PackedVector2Array()
+		for i in 9:
+			var x := -15.0 + i * 3.75
+			line.append(m + Vector2(x, 1 - (1.0 - absf(x) / 15.0) * 1.5 - absf(x) * 0.12) * _u)
+		draw_polyline(line, lip.darkened(0.45), 2 * _u, true)
+		draw_circle(m + Vector2(-4, 4) * _u, 2 * _u, Color(1, 1, 1, 0.5))
 	else:
 		draw_arc(m + Vector2(0, -8) * _u, 14 * _u, 0.5, PI - 0.5, 12, lip, 4 * _u, true)
 
@@ -892,3 +939,47 @@ func _draw_cat(pos: Vector2, p: float) -> void:
 		var tp := h + Vector2(-60, -64) * u
 		draw_string_outline(f, tp, "MIAUW!", HORIZONTAL_ALIGNMENT_LEFT, -1, int(32 * u), int(8 * u), OUTLINE)
 		draw_string(f, tp, "MIAUW!", HORIZONTAL_ALIGNMENT_LEFT, -1, int(32 * u), Palette.GOLD)
+
+func _draw_soft_eyes(feet: Vector2, head_o: Vector2, point: float, surprise: float, smile: float) -> void:
+	# Grote amandelogen met mascara, twee lichtpuntjes en een klein vleugeltje
+	var u := _u
+	for side in [-1, 1]:
+		var e := _P(feet, head_o, 31 * side, -258)
+		if _blink > 0.0 or (animation == "happy" and smile > 0.5):
+			var closed := PackedVector2Array()
+			for i in 11:
+				var a := PI * i / 10.0
+				closed.append(e + Vector2(cos(a) * 15, sin(a) * 6 - 2) * u)
+			draw_polyline(closed, OUTLINE, 3.5 * u, true)
+		else:
+			var open := 1.0 + surprise * 0.25
+			var almond := PackedVector2Array()
+			for i in 24:
+				var a := TAU * i / 24.0
+				var ry := 13.0 if sin(a) < 0 else 10.0
+				almond.append(e + Vector2(cos(a) * 16, sin(a) * ry * open) * u)
+			draw_colored_polygon(almond, Color.WHITE)
+			var look_dir := Vector2(sin(_t * 0.7) * 2.0 + point * 3.0, -point * 2.0)
+			draw_circle(e + look_dir * u, 10 * u, c("eyes"))
+			draw_circle(e + look_dir * u, 7 * u, c("eyes").darkened(0.35))
+			draw_circle(e + look_dir * u, 4.5 * u, Color("#1C1012"))
+			draw_circle(e + (look_dir + Vector2(-3.5, -3.5)) * u, 3 * u, Color.WHITE)
+			draw_circle(e + (look_dir + Vector2(3, 3)) * u, 1.4 * u, Color(1, 1, 1, 0.8))
+			# Onderrand zacht
+			var low := PackedVector2Array()
+			for i in 9:
+				var a := PI * 0.15 + PI * 0.7 * i / 8.0
+				low.append(e + Vector2(cos(a) * 16, sin(a) * 10 * open) * u)
+			draw_polyline(low, Color("#B98A86"), 1.6 * u, true)
+			# Bovenrand met mascara en vleugeltje
+			var top := PackedVector2Array()
+			for i in 13:
+				var a := PI + PI * i / 12.0
+				top.append(e + Vector2(cos(a) * 17, sin(a) * 13.5 * open) * u)
+			draw_polyline(top, OUTLINE, 4.2 * u, true)
+			draw_line(e + Vector2(16 * side, -2) * u, e + Vector2(23 * side, -7) * u, OUTLINE, 3 * u, true)
+		# Wimpers aan de buitenkant
+		for i in 3:
+			var a: float = -PI * 0.5 + side * (0.75 + i * 0.25)
+			var base := e + Vector2(cos(a) * 16, sin(a) * 12) * u
+			draw_line(base, base + Vector2(cos(a) * 1.0, sin(a) - 0.5).normalized() * 8 * u, OUTLINE, 2.4 * u, true)

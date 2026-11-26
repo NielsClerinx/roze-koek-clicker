@@ -1,0 +1,23 @@
+{
+  "id": "jordi",
+  "name": "Jordi",
+  "nickname": "Kapitein Jordi",
+  "role": "Aanvoerder van het bezorgteam en vaste supporter op de bank",
+  "description": "Pet op, handen in de zakken en altijd die tevreden glimlach. Levert elke roze koek af alsof het de beslissende penalty is, en viert elke bestelling met een vreugdedansje.",
+  "intro": "Rustig, ik regel het wel. Geef me de bal, eh, de koek.",
+  "unlock_cost": 25000,
+  "unlock_condition": {"type": "building_count", "building": "oven", "count": 5},
+  "passive_bonus": [
+    {"type": "building_mult", "target": "oven", "value": 1.5},
+    {"type": "offline_eff_add", "value": 0.1}
+  ],
+  "ability": {"type": "click_frenzy", "name": "Hattrick", "description": "Jordi hooghoudt met de koek: tikken x10 gedurende 15 seconden.", "value": 10, "duration": 15, "cooldown": 600},
+  "look": {
+    "skin": "#F4D2BC", "hair": "#B8703F", "hair_style": "bald", "hair_length": "none", "beard": "short",
+    "brows": "relaxed", "brow_color": "#B87A4A", "eyes": "#6F93A8", "cheeks": true,
+    "build": "slim", "shirt": "#B9BCC2", "shirt_style": "sweater", "sleeves": "long",
+    "pants": "#7FA6CF", "hat": "baseball_cap", "idle_pose": "pockets", "smile_base": 0.35,
+    "ability_pose": "football", "companion": ""
+  },
+  "animation": "friend_figure"
+}

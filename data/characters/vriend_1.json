@@ -5,7 +5,7 @@
   "role": "Hoofd van de Fondantmijn",
   "description": "Kijkt altijd alsof hij net een slecht gebakken koek heeft geproefd. Woont half in het bos, draagt een strohoed en een kruisje, en vertrouwt niemand behalve zijn hond Snuffel.",
   "intro": "Ik heb jouw koek bekeken. Hmm. Er kan nog veel beter. Snuffel en ik nemen de mijn over.",
-  "unlock_cost": 5000,
+  "unlock_cost": 50000,
   "unlock_condition": {"type": "building_count", "building": "fondantmijn", "count": 1},
   "passive_bonus": [
     {"type": "building_mult", "target": "fondantmijn", "value": 1.5},

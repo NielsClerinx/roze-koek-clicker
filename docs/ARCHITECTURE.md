@@ -37,6 +37,14 @@ worden genegeerd. `version` in de save maakt migraties mogelijk (`GameState._mig
 Tijdelijke boosts tellen niet mee. Een klok die achteruit staat levert niets op.
 
 ## Een vriend toevoegen
-1. `data/characters/<id>.json` op basis van `_template.json`.
-2. Tekeningen in `assets/characters/<id>/`.
-Geen codewijziging nodig; nieuwe bonustypes voeg je toe in `Economy._recalculate`.
+1. Kopieer een bestaand bestand in `data/characters/` naar `<id>.json`.
+2. Pas naam, rol, teksten, `unlock_cost`, `unlock_condition`, `passive_bonus` en `ability` aan.
+3. Stel het uiterlijk in onder `look` (haar, baard, hoed, kleren, bril, huisdier, pose ...).
+   `scripts/ui/characters/friend_figure.gd` tekent en animeert de figuur daaruit.
+4. Bekijk het resultaat: `godot --path . res://tools/character_preview.tscn -- <id> <map>`.
+
+Geen codewijziging nodig. Nieuwe bonustypes voeg je toe in `Economy._recalculate`,
+nieuwe vaardigheidstypes in `CharacterSystem.use_ability`, nieuwe uiterlijke kenmerken in `friend_figure.gd`.
+
+De UI voor vrienden staat in `scripts/ui/friends_ui.gd`: Vrienden-tab, figuren naast de koek
+(max. 4: twee vooraan, twee achter de koek) en de welkomstpop-up.

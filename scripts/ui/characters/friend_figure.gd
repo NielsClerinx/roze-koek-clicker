@@ -20,7 +20,8 @@ var _anim_t := 0.0
 var _blink := 0.0
 var _next_blink := 2.0
 var _u := 1.0
-var _p := 0.0   # schaal: 1 eenheid bij 460 hoog
+var _p := 0.0
+var _hide_hands := false   # schaal: 1 eenheid bij 460 hoog
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -66,7 +67,7 @@ func _draw() -> void:
 			smile = sin(p * PI)
 		"ability":
 			point = clampf(sin(p * PI) * 1.6, 0.0, 1.0)
-			if look.get("ability_pose", "point") in ["cheers", "boss"]:
+			if look.get("ability_pose", "point") in ["cheers", "boss", "football"]:
 				smile = point
 			surprise = point
 			jump = absf(sin(p * PI * 3.0)) * 8.0 * point
@@ -104,7 +105,12 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 	var w: float = {"stocky": 1.18, "slim": 0.92}.get(look.get("build", ""), 1.0)
 	var cheers: bool = look.get("ability_pose", "point") == "cheers"
 	var boss: bool = look.get("ability_pose", "point") == "boss"
+	var football: bool = look.get("ability_pose", "point") == "football"
+	var pockets: bool = look.get("idle_pose", "") == "pockets"
+	_hide_hands = pockets and point < 0.3
 	var hand_l := _P(feet, o, -82 * w, -82 + breathe)
+	if pockets:
+		hand_l = _P(feet, o, -60 * w, -70 + breathe * 0.3)
 	if cheers:
 		hand_l = hand_l.lerp(_P(feet, o, -112 * w, -228), point)
 	_arm(_P(feet, o, -58 * w, -150), hand_l, shirt, skin, false)
@@ -120,6 +126,18 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 			draw_circle(_P(feet, o, 0, -138 + i * 22), 3.4 * _u, Color("#7FB3E0"))
 		for side in [-1, 1]:
 			_poly_ol(PackedVector2Array([_P(feet, o, 4 * side, -162 - breathe), _P(feet, o, 30 * side, -168 - breathe), _P(feet, o, 22 * side, -138)]), shirt)
+	elif look.get("shirt_style", "open") == "sweater":
+		# Ronde, geribde hals, geribde onderrand en een camouflagezakje
+		draw_arc(_P(feet, o, 0, -164 - breathe), 24 * _u, 0.1, PI - 0.1, 16, shirt.darkened(0.15), 7 * _u, true)
+		_poly(PackedVector2Array([_P(feet, o, -54 * w, -70), _P(feet, o, 54 * w, -70), _P(feet, o, 54 * w, -58), _P(feet, o, -54 * w, -58)]), shirt.darkened(0.1))
+		var pk := _P(feet, o, 24 * w, -128)
+		var pocket := PackedVector2Array([pk + Vector2(-16, -16) * _u, pk + Vector2(16, -16) * _u, pk + Vector2(16, 14) * _u, pk + Vector2(0, 19) * _u, pk + Vector2(-16, 14) * _u])
+		_poly_ol(pocket, Color("#59604A"))
+		for blob in [[Vector2(-7, -8), 6.0, "#3B3F33"], [Vector2(6, -2), 7.0, "#7C7A62"], [Vector2(-4, 8), 6.0, "#2E312A"], [Vector2(9, 10), 4.0, "#3B3F33"]]:
+			draw_circle(pk + blob[0] * _u, blob[1] * _u, Color(blob[2]))
+		# Gemêleerde stof
+		for i in 10:
+			draw_circle(_P(feet, o, -40 + (i * 37) % 80, -150 + (i * 23) % 80), 1.6 * _u, shirt.darkened(0.08))
 	elif look.get("shirt_style", "open") == "tee":
 		draw_arc(_P(feet, o, 0, -166 - breathe), 26 * _u, 0.15, PI - 0.15, 16, shirt.darkened(0.18), 5 * _u, true)
 		for side in [-1, 1]:
@@ -143,6 +161,11 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 		_poly_ol(PackedVector2Array([st + Vector2(-8, -6) * _u, st + Vector2(7, -8) * _u, st + Vector2(9, 6) * _u, st + Vector2(-2, 12) * _u]), Color("#2F4A44"))
 	# --- Rechterarm (wijst bij vaardigheid)
 	var hand_r := _P(feet, o, 82 * w, -82 + breathe)
+	if pockets:
+		hand_r = _P(feet, o, 60 * w, -70 + breathe * 0.3)
+	if football:
+		hand_r = hand_r.lerp(_P(feet, o, 100, -215), point)
+		hand_l = hand_l
 	if boss:
 		hand_r = hand_r.lerp(_P(feet, o, 112, -150), point)
 	elif not cheers:
@@ -172,6 +195,24 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 	if look.get("cheeks", false):
 		for side in [-1, 1]:
 			_ellipse(_P(feet, head_o, 48 * side, -226), Vector2(14, 9) * _u, Color("#F08C8C", 0.45))
+	if look.get("beard", "") == "short":
+		var bc := c("hair")
+		var pts := PackedVector2Array()
+		for q in [Vector2(-80, -252), Vector2(-78, -226), Vector2(-64, -194), Vector2(-38, -174), Vector2(0, -166),
+				Vector2(38, -174), Vector2(64, -194), Vector2(78, -226), Vector2(80, -252), Vector2(70, -238),
+				Vector2(48, -206), Vector2(0, -196), Vector2(-48, -206), Vector2(-70, -238)]:
+			pts.append(_P(feet, head_o, q.x, q.y))
+		_poly_ol(pts, bc)
+		for i in 8:
+			var x := -56 + i * 16
+			draw_circle(_P(feet, head_o, x, -188 + absf(x) * 0.25), 2.0 * _u, bc.lightened(0.2))
+		var m := _P(feet, head_o, 0, -212)
+		if smile > 0.05:
+			draw_arc(m, (14 + 6 * smile) * _u, 0.2, PI - 0.2, 16, Color("#7A2E3A"), 6 * _u, true)
+		else:
+			draw_arc(m + Vector2(0, -8) * _u, 14 * _u, 0.5, PI - 0.5, 12, Color("#B5555F"), 4 * _u, true)
+		for side in [-1, 1]:
+			_capsule(_P(feet, head_o, 4 * side, -222), _P(feet, head_o, 30 * side, -214 + smile * -4), 6.5 * _u, bc, false)
 	if look.get("beard", "") == "goatee":
 		var hair_c := c("hair")
 		# Stoppels langs de kaak
@@ -282,10 +323,12 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 	# --- Hoofddeksel
 	if look.get("hat", "") == "straw_fedora":
 		_draw_hat(_P(feet, head_o, 0, -330 - hat_lift), hat_lift)
+	elif look.get("hat", "") == "baseball_cap":
+		_draw_baseball_cap(_P(feet, head_o, 0, -314 - hat_lift), hat_lift)
 	elif look.get("hat", "") == "flat_cap":
 		_draw_flat_cap(_P(feet, head_o, 0, -318 - hat_lift), hat_lift)
 	# --- Voorwerp in de linkerhand
-	_draw_prop(hand_l, point if cheers else 0.0)
+	_draw_prop(hand_l, point if (cheers or football) else 0.0)
 
 func _draw_quiff(feet: Vector2, head_o: Vector2, hair: Color, sway: float) -> void:
 	# Korte, gefadede zijkanten bij de slapen
@@ -366,9 +409,13 @@ func _arm(shoulder: Vector2, hand: Vector2, shirt: Color, skin: Color, right: bo
 		_capsule(shoulder, elbow, 18 * _u, shirt, true)
 	else:
 		_capsule(shoulder, hand, 17 * _u, shirt, true)
+	if _hide_hands:
+		return
 	_circle_ol(hand, 14 * _u, skin)
 
 func _draw_prop(hand: Vector2, raised: float) -> void:
+	if look.get("ability_pose", "") == "football" and raised > 0.05:
+		_draw_football(raised)
 	if look.get("prop", "") != "beer":
 		return
 	var u := _u
@@ -412,6 +459,28 @@ func _draw_wayfarers(feet: Vector2, head_o: Vector2, lift: float, shine: float) 
 			var sp := _P(feet, head_o, cos(a) * 120, -260 + sin(a) * 120)
 			_sparkle(sp, (6 + 3 * sin(_t * 8 + i)) * u)
 
+func _draw_football(k: float) -> void:
+	var u := _u
+	var feet := Vector2(size.x * 0.5, size.y * 0.97)
+	var h := absf(sin(_p * PI * 4.0)) * 150.0 * k
+	var c0 := feet + Vector2(100, -60 - h) * u
+	var spin := _t * 8.0
+	draw_circle(c0, 26 * u + 3.5 * u, OUTLINE)
+	draw_circle(c0, 26 * u, Color.WHITE)
+	for i in 5:
+		var a := spin + TAU * i / 5.0
+		var pts := PackedVector2Array()
+		for j in 5:
+			var b := a + TAU * j / 5.0
+			pts.append(c0 + Vector2(cos(a), sin(a)) * 15 * u + Vector2(cos(b), sin(b)) * 5 * u)
+		draw_colored_polygon(pts, OUTLINE)
+	draw_circle(c0, 6 * u, OUTLINE)
+	if k > 0.6:
+		var f := Palette.title_font()
+		var tp := feet + Vector2(-140, -420) * u
+		draw_string_outline(f, tp, "GOAL!", HORIZONTAL_ALIGNMENT_LEFT, -1, int(40 * u), int(8 * u), OUTLINE)
+		draw_string(f, tp, "GOAL!", HORIZONTAL_ALIGNMENT_LEFT, -1, int(40 * u), Palette.GOLD)
+
 func _sparkle(p: Vector2, r: float) -> void:
 	var pts := PackedVector2Array()
 	for i in 8:
@@ -419,6 +488,27 @@ func _sparkle(p: Vector2, r: float) -> void:
 		var rr := r * (2.2 if i % 2 == 0 else 0.6)
 		pts.append(p + Vector2(cos(a), sin(a)) * rr)
 	draw_colored_polygon(pts, Color("#FFF3B0"))
+
+func _draw_baseball_cap(center: Vector2, lift: float) -> void:
+	var u := _u
+	var col := Color("#1F2228")
+	draw_set_transform(center, 0.06 - lift * 0.004, Vector2.ONE)
+	var dome := PackedVector2Array()
+	for i in 19:
+		var a := PI + PI * i / 18.0
+		dome.append(Vector2(cos(a) * 86, sin(a) * 58 + 6) * u)
+	_poly_ol(dome, col)
+	# Klep naar voren (licht schuin)
+	_poly_ol(PackedVector2Array([Vector2(-30, 0) * u, Vector2(88, -2) * u, Vector2(128, 16) * u, Vector2(100, 26) * u, Vector2(-24, 14) * u]), col.lightened(0.06))
+	draw_line(Vector2(-20, 8) * u, Vector2(108, 14) * u, col.lightened(0.18), 2 * u, true)
+	# Naden en knoopje
+	draw_line(Vector2(0, -50) * u, Vector2(-6, 2) * u, col.lightened(0.15), 2 * u, true)
+	draw_line(Vector2(0, -50) * u, Vector2(40, 0) * u, col.lightened(0.15), 2 * u, true)
+	draw_circle(Vector2(0, -52) * u, 5 * u, col.lightened(0.12))
+	# Klein wit logootje
+	for i in 3:
+		draw_line(Vector2(-42, -26 + i * 7) * u, Vector2(-22, -26 + i * 7) * u, Color(1, 1, 1, 0.85), 2.2 * u, true)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 func _draw_flat_cap(center: Vector2, lift: float) -> void:
 	var u := _u

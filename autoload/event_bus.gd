@@ -14,3 +14,6 @@ signal game_loaded
 signal game_reset
 signal character_recruited(id: String)
 signal ability_used(id: String)
+signal achievement_unlocked(id: String)
+signal challenge_completed(index: int)
+signal heaven_bought(id: String)

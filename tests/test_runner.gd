@@ -7,6 +7,7 @@ var _passes := 0
 
 func _ready() -> void:
 	SaveManager.slot = "test_save"
+	AchievementSystem.enabled = false
 	GameState.reset_all()
 	EventBus.game_reset.emit()
 	_test_number_format()
@@ -20,6 +21,10 @@ func _ready() -> void:
 	_test_prestige()
 	_test_data_integrity()
 	_test_characters()
+	_test_achievements()
+	_test_challenges()
+	_test_heaven()
+	_test_save_migration()
 	print("\n%d geslaagd, %d mislukt" % [_passes, _fails])
 	get_tree().quit(1 if _fails > 0 else 0)
 
@@ -190,3 +195,154 @@ func _test_characters() -> void:
 	check(CharacterSystem.is_recruited("timothy"), "vriend blijft na herglazuren")
 	RandomEventSystem.reset()
 	SaveManager.wipe()
+
+func _test_achievements() -> void:
+	GameState.reset_all(); EventBus.game_reset.emit()
+	AchievementSystem.enabled = true
+	var got: Array = []
+	var cb := func(id): got.append(id)
+	EventBus.achievement_unlocked.connect(cb)
+	check(GameData.achievements.size() >= 25, "minstens 25 prestaties")
+	GameState.cookies = 15.0
+	ProductionSystem.buy("kleine_bakker", 1)
+	check(AchievementSystem.is_unlocked("kb_1"), "prestatie eerste bakker")
+	check(got.has("kb_1"), "melding bij prestatie")
+	var base := 0.1
+	check(approx(Economy.kps(), base * (1.0 + 0.01 * AchievementSystem.unlocked_count())), "+1% per prestatie")
+	GameState.add_cookies(1e6)
+	AchievementSystem.check_all()
+	check(AchievementSystem.is_unlocked("bake_1e6"), "prestatie 1 miljoen gebakken")
+	check(not AchievementSystem.is_unlocked("bake_1e9"), "1 miljard nog niet")
+	check(approx(AchievementSystem.progress("bake_1e9"), GameState.baked_lifetime / 1e9), "voortgang prestatie")
+	# Klikken tellen over runs heen
+	GameState.clicks_total = 99
+	ClickSystem.click()
+	AchievementSystem.check_all()
+	check(AchievementSystem.is_unlocked("clicks_100"), "100 kliks totaal")
+	# Geheime prestatie via vlag
+	GameState.flags["speed_clicker"] = true
+	AchievementSystem.check_all()
+	check(AchievementSystem.is_unlocked("secret_speed"), "geheime prestatie")
+	# Blijft na herglazuren
+	var n := AchievementSystem.unlocked_count()
+	GameState.add_cookies(1e12)
+	PrestigeSystem.prestige()
+	check(AchievementSystem.unlocked_count() >= n and AchievementSystem.is_unlocked("prestige_1"), "prestaties blijven + herglazuurd")
+	# Opslaan/laden zonder dubbele meldingen
+	SaveManager.save_game()
+	got.clear()
+	GameState.reset_all()
+	SaveManager.load_game()
+	check(AchievementSystem.is_unlocked("kb_1") and GameState.clicks_total >= 100, "prestaties geladen")
+	check(got.is_empty(), "geen meldingen bij laden")
+	EventBus.achievement_unlocked.disconnect(cb)
+	AchievementSystem.enabled = false
+	SaveManager.wipe()
+
+func _test_challenges() -> void:
+	GameState.reset_all(); EventBus.game_reset.emit()
+	var a := ChallengeSystem.generate("2026-11-26")
+	var b := ChallengeSystem.generate("2026-11-26")
+	check(a.size() == 3, "drie uitdagingen")
+	check(a.map(func(t): return t.id) == b.map(func(t): return t.id), "zelfde datum = zelfde opdrachten")
+	var ids := {}
+	for t in a: ids[t.id] = true
+	check(ids.size() == 3, "geen dubbele opdrachten")
+	var differs := false
+	for d in ["2026-11-27", "2026-11-28", "2026-11-29", "2026-11-30"]:
+		if ChallengeSystem.generate(d).map(func(t): return t.id) != a.map(func(t): return t.id):
+			differs = true
+	check(differs, "andere dagen geven andere opdrachten")
+	check(not a.any(func(t): return t.id == "ability"), "geen vriendenopdracht zonder vrienden")
+	check(ChallengeSystem.previous_day("2026-03-01") == "2026-02-28", "vorige dag")
+	# Voortgang en beloning op een vaste dag
+	ChallengeSystem.ensure_today("2026-11-26")
+	check(GameState.daily.day == "2026-11-26", "dag ingesteld")
+	for i in 3:
+		var t: Dictionary = ChallengeSystem.tasks()[i]
+		check(ChallengeSystem.claim(i) == 0, "niet ophalen voor voltooid %d" % i)
+		ChallengeSystem.add_progress(ChallengeSystem.definition(t).metric, float(t.goal) + 5.0)
+		check(ChallengeSystem.is_done(i), "voltooid %d" % i)
+		check(float(t.progress) == float(t.goal), "voortgang begrensd %d" % i)
+	check(ChallengeSystem.claim(0) == 5 and GameState.ribbons == 5, "5 lintjes")
+	check(ChallengeSystem.claim(0) == 0, "niet twee keer ophalen")
+	ChallengeSystem.claim(1); ChallengeSystem.claim(2)
+	check(GameState.ribbons == 15 and ChallengeSystem.streak() == 1, "dag voltooid, reeks 1")
+	# Volgende dag: reeks loopt door; dag overslaan: reeks terug naar 0
+	ChallengeSystem.ensure_today("2026-11-27")
+	check(ChallengeSystem.streak() == 1 and not ChallengeSystem.is_done(0), "nieuwe dag, reeks behouden")
+	ChallengeSystem.ensure_today("2026-11-29")
+	check(ChallengeSystem.streak() == 0, "dag gemist, reeks weg")
+	# 7 dagen op rij geeft bonus
+	GameState.ribbons = 0
+	GameState.daily = {}
+	var day := "2026-12-01"
+	var total := 0
+	for d in 7:
+		ChallengeSystem.ensure_today(day)
+		for i in 3:
+			var t: Dictionary = ChallengeSystem.tasks()[i]
+			ChallengeSystem.add_progress(ChallengeSystem.definition(t).metric, float(t.goal))
+			total += ChallengeSystem.claim(i)
+		var nd := Time.get_unix_time_from_datetime_string(day + "T12:00:00") + 86400
+		day = Time.get_date_string_from_unix_time(nd)
+	check(total == 7 * 15 + 25, "reeksbonus na 7 dagen (%d)" % total)
+	check(GameState.flags.has("streak_7"), "vlag trouwe bakker")
+	# Klikken telt mee via het signaal
+	ChallengeSystem.ensure_today("2026-11-26")
+	var ci := -1
+	for i in 3:
+		if ChallengeSystem.tasks()[i].id == "clicks": ci = i
+	if ci >= 0:
+		ClickSystem.click()
+		check(float(ChallengeSystem.tasks()[ci].progress) == 1.0, "klik telt voor uitdaging")
+	# Lintjesboost
+	GameState.ribbons = 20
+	var k := Economy.kps()
+	GameState.buildings["kleine_bakker"] = 10; Economy.mark_dirty()
+	k = Economy.kps()
+	check(ChallengeSystem.buy_boost() and GameState.ribbons == 5, "lintjesboost gekocht")
+	check(approx(Economy.kps(), k * 2.0), "lintjesboost x2")
+	check(not ChallengeSystem.buy_boost(), "geen tweede boost")
+	RandomEventSystem.reset()
+	SaveManager.wipe()
+
+func _test_heaven() -> void:
+	GameState.reset_all(); EventBus.game_reset.emit()
+	check(not HeavenSystem.buy("hemel_start"), "geen kristallen")
+	GameState.add_cookies(64e12)   # 4 kristallen
+	check(PrestigeSystem.prestige() == 4, "4 kristallen")
+	check(HeavenSystem.buy("hemel_start"), "vliegende start gekocht")
+	check(GameState.crystals_available() == 3 and GameState.crystals == 4, "kristal uitgegeven, bonus blijft")
+	check(approx(Economy.crystal_mult(), 1.08), "+2% per kristal ook na uitgeven")
+	check(not HeavenSystem.buy("hemel_start"), "niet dubbel")
+	check(not HeavenSystem.buy("hemel_offline2"), "vereiste ontbreekt")
+	check(not HeavenSystem.buy("hemel_prod"), "te duur")
+	check(HeavenSystem.buy("hemel_offline"), "lange nacht")
+	check(approx(Economy.offline_cap_seconds(), 9.0 * 3600.0), "offline 3+6 uur")
+	GameState.crystals += 12
+	check(HeavenSystem.buy("hemel_golden"), "gouden glans")
+	check(approx(Economy.golden_lifetime(), 18.0), "gouden koek 18 s")
+	check(HeavenSystem.buy("hemel_start2"), "raketstart")
+	GameState.add_cookies(1e17)
+	check(PrestigeSystem.prestige() > 0, "tweede keer herglazuren")
+	check(GameState.count("kleine_bakker") == 10 and GameState.count("bakkerij") == 10 and GameState.count("oven") == 5, "startgebouwen na herglazuren")
+	check(GameState.cookies == 0.0, "geen startkoeken")
+	SaveManager.save_game()
+	GameState.reset_all()
+	SaveManager.load_game()
+	check(HeavenSystem.owned("hemel_start2") and GameState.crystals_spent == 15, "Roze Hemel geladen")
+	# Vaardigheden sneller opladen
+	GameState.crystals += 20
+	check(HeavenSystem.buy("hemel_prod") and HeavenSystem.buy("hemel_friends"), "vriendenkring")
+	check(approx(Economy.ability_cooldown(600.0), 450.0), "afkoeltijd -25%")
+	SaveManager.wipe()
+
+func _test_save_migration() -> void:
+	GameState.reset_all()
+	GameState.from_dict({"version": 1, "clicks": 42, "crits": 3, "cookies": 10})
+	check(GameState.clicks_total == 42 and GameState.crits_total == 3, "v1-save gemigreerd")
+	GameState.from_dict({"version": 2, "achievements": {"kb_1": 1.0, "bestaat_niet": 2.0}, "heaven": ["hemel_start", "nee"], "flags": ["x"], "ribbons": -5})
+	check(GameState.achievements.size() == 1 and GameState.heaven.size() == 1, "onbekende ids genegeerd")
+	check(GameState.ribbons == 0, "negatieve lintjes geweigerd")
+	GameState.reset_all()

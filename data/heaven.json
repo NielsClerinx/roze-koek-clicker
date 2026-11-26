@@ -1,0 +1,144 @@
+[
+ {
+  "id": "hemel_start",
+  "name": "Vliegende start",
+  "description": "Begin elke run met 10 kleine bakkers.",
+  "cost": 1,
+  "requires": [],
+  "start": {
+   "kleine_bakker": 10
+  },
+  "effects": []
+ },
+ {
+  "id": "hemel_offline",
+  "name": "Lange nacht",
+  "description": "Offline bakken duurt 6 uur langer.",
+  "cost": 2,
+  "requires": [],
+  "effects": [
+   {
+    "type": "offline_cap_add",
+    "value": 21600
+   }
+  ]
+ },
+ {
+  "id": "hemel_golden",
+  "name": "Gouden glans",
+  "description": "Gouden koeken blijven 50% langer staan.",
+  "cost": 2,
+  "requires": [],
+  "effects": [
+   {
+    "type": "golden_duration_mult",
+    "value": 1.5
+   }
+  ]
+ },
+ {
+  "id": "hemel_click",
+  "name": "Hemelse vingers",
+  "description": "Tikken levert x2 op.",
+  "cost": 3,
+  "requires": [
+   "hemel_start"
+  ],
+  "effects": [
+   {
+    "type": "click_mult",
+    "value": 2
+   }
+  ]
+ },
+ {
+  "id": "hemel_prod",
+  "name": "Engelenbakkers",
+  "description": "Alle productie +10%.",
+  "cost": 5,
+  "requires": [
+   "hemel_start"
+  ],
+  "effects": [
+   {
+    "type": "global_mult",
+    "value": 1.1
+   }
+  ]
+ },
+ {
+  "id": "hemel_offline2",
+  "name": "Slaapwandelaars",
+  "description": "Offline bakken +25% efficiënter.",
+  "cost": 8,
+  "requires": [
+   "hemel_offline"
+  ],
+  "effects": [
+   {
+    "type": "offline_eff_add",
+    "value": 0.25
+   }
+  ]
+ },
+ {
+  "id": "hemel_golden2",
+  "name": "Goudader",
+  "description": "Gouden koeken verschijnen 25% vaker.",
+  "cost": 8,
+  "requires": [
+   "hemel_golden"
+  ],
+  "effects": [
+   {
+    "type": "golden_freq_mult",
+    "value": 1.25
+   }
+  ]
+ },
+ {
+  "id": "hemel_start2",
+  "name": "Raketstart",
+  "description": "Begin elke run ook met 10 bakkerijen en 5 ovens.",
+  "cost": 10,
+  "requires": [
+   "hemel_start"
+  ],
+  "start": {
+   "bakkerij": 10,
+   "oven": 5
+  },
+  "effects": []
+ },
+ {
+  "id": "hemel_friends",
+  "name": "Vriendenkring",
+  "description": "Vaardigheden van vrienden laden 25% sneller op.",
+  "cost": 12,
+  "requires": [
+   "hemel_prod"
+  ],
+  "effects": [
+   {
+    "type": "ability_cd_mult",
+    "value": 0.75
+   }
+  ]
+ },
+ {
+  "id": "hemel_prod2",
+  "name": "Roze Hemelpoort",
+  "description": "Alle productie +25%.",
+  "cost": 25,
+  "requires": [
+   "hemel_prod",
+   "hemel_click"
+  ],
+  "effects": [
+   {
+    "type": "global_mult",
+    "value": 1.25
+   }
+  ]
+ }
+]

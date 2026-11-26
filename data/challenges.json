@@ -1,0 +1,91 @@
+{
+ "reward": 5,
+ "streak_days": 7,
+ "streak_reward": 25,
+ "boost": {
+  "cost": 15,
+  "value": 2,
+  "duration": 900
+ },
+ "challenges": [
+  {
+   "id": "clicks",
+   "text": "Tik %s keer op de koek",
+   "metric": "clicks",
+   "goals": [
+    100,
+    300,
+    600,
+    1000
+   ]
+  },
+  {
+   "id": "crits",
+   "text": "Maak %s kritieke kliks",
+   "metric": "crits",
+   "goals": [
+    3,
+    6,
+    10,
+    20
+   ]
+  },
+  {
+   "id": "golden",
+   "text": "Vang %s gouden koeken",
+   "metric": "golden",
+   "goals": [
+    1,
+    2,
+    2,
+    3
+   ]
+  },
+  {
+   "id": "buildings",
+   "text": "Koop %s gebouwen",
+   "metric": "buildings",
+   "goals": [
+    10,
+    25,
+    50,
+    100
+   ]
+  },
+  {
+   "id": "upgrades",
+   "text": "Koop %s upgrades",
+   "metric": "upgrades",
+   "goals": [
+    2,
+    3,
+    5,
+    8
+   ]
+  },
+  {
+   "id": "bake",
+   "text": "Bak %s roze koeken",
+   "metric": "bake",
+   "minutes": 15,
+   "goals": [
+    500,
+    1000,
+    1000,
+    1000
+   ]
+  },
+  {
+   "id": "ability",
+   "text": "Gebruik %s keer een vaardigheid van een vriend",
+   "metric": "ability",
+   "goals": [
+    1,
+    2,
+    3,
+    3
+   ],
+   "needs_friend": true
+  }
+ ]
+}

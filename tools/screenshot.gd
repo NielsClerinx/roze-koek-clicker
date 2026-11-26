@@ -17,6 +17,14 @@ func _ready() -> void:
 	for id in ["niels", "timothy", "jordi", "vriend_1"]:
 		GameState.characters[id] = {"level": 1, "ready_at": 0.0}
 	GameState.characters["timothy"]["ready_at"] = Time.get_unix_time_from_system() + 222
+	GameState.clicks_total = 740
+	GameState.crits_total = 21
+	GameState.golden_clicked = 3
+	GameState.crystals = 6
+	GameState.crystals_spent = 1
+	GameState.heaven["hemel_start"] = true
+	GameState.ribbons = 20
+	GameState.daily = {"streak": 3, "last_full_day": ChallengeSystem.previous_day(ChallengeSystem.day_key())}
 	SaveManager.save_game()
 	var main = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
@@ -35,6 +43,24 @@ func _ready() -> void:
 	CharacterSystem.use_ability("niels")
 	await _frames(25)
 	_shot(out + "/screen_vaardigheid.png")
+	var tasks := ChallengeSystem.tasks()
+	tasks[0].progress = tasks[0].goal
+	tasks[1].progress = float(tasks[1].goal) * 0.6
+	ChallengeSystem.claim(0)
+	tasks[2].progress = tasks[2].goal
+	main._select_tab(3)
+	await _frames(40)
+	_shot(out + "/screen_prestaties.png")
+	var ap: ScrollContainer = main._pages[3]
+	ap.scroll_vertical = 560
+	await _frames(10)
+	_shot(out + "/screen_medailles.png")
+	main._select_tab(4)
+	await _frames(10)
+	var sc: ScrollContainer = main._pages[4]
+	sc.scroll_vertical = 520
+	await _frames(10)
+	_shot(out + "/screen_roze_hemel.png")
 	GameState.characters.erase("jordi")
 	GameState.buildings["oven"] = 6
 	GameState.cookies = 30000

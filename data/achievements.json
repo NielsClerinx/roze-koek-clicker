@@ -1,0 +1,253 @@
+[
+ {
+  "id": "bake_100",
+  "name": "Eerste deeg",
+  "description": "Bak in totaal 100 roze koeken.",
+  "condition": {
+   "type": "lifetime_baked",
+   "value": 100
+  }
+ },
+ {
+  "id": "bake_1e4",
+  "name": "Kruimeltje",
+  "description": "Bak in totaal 10.000 roze koeken.",
+  "condition": {
+   "type": "lifetime_baked",
+   "value": 10000.0
+  }
+ },
+ {
+  "id": "bake_1e6",
+  "name": "Koekenmiljonair",
+  "description": "Bak in totaal 1 miljoen roze koeken.",
+  "condition": {
+   "type": "lifetime_baked",
+   "value": 1000000.0
+  }
+ },
+ {
+  "id": "bake_1e9",
+  "name": "Roze imperium",
+  "description": "Bak in totaal 1 miljard roze koeken.",
+  "condition": {
+   "type": "lifetime_baked",
+   "value": 1000000000.0
+  }
+ },
+ {
+  "id": "bake_1e12",
+  "name": "Koekbiljonair",
+  "description": "Bak in totaal 1 biljoen roze koeken.",
+  "condition": {
+   "type": "lifetime_baked",
+   "value": 1000000000000.0
+  }
+ },
+ {
+  "id": "bake_1e15",
+  "name": "Suikerschok",
+  "description": "Bak in totaal 1 biljard roze koeken.",
+  "condition": {
+   "type": "lifetime_baked",
+   "value": 1000000000000000.0
+  }
+ },
+ {
+  "id": "clicks_100",
+  "name": "Tikker",
+  "description": "Tik 100 keer op de koek.",
+  "condition": {
+   "type": "clicks_total",
+   "value": 100
+  }
+ },
+ {
+  "id": "clicks_1000",
+  "name": "Vingerkramp",
+  "description": "Tik 1.000 keer op de koek.",
+  "condition": {
+   "type": "clicks_total",
+   "value": 1000
+  }
+ },
+ {
+  "id": "crits_10",
+  "name": "Raak!",
+  "description": "Maak 10 kritieke kliks.",
+  "condition": {
+   "type": "crits_total",
+   "value": 10
+  }
+ },
+ {
+  "id": "crits_100",
+  "name": "Kritieke massa",
+  "description": "Maak 100 kritieke kliks.",
+  "condition": {
+   "type": "crits_total",
+   "value": 100
+  }
+ },
+ {
+  "id": "kb_1",
+  "name": "Eerste hulp",
+  "description": "Neem je eerste kleine bakker aan.",
+  "condition": {
+   "type": "building_count",
+   "building": "kleine_bakker",
+   "count": 1
+  }
+ },
+ {
+  "id": "kb_50",
+  "name": "Bakkersleger",
+  "description": "Heb 50 kleine bakkers tegelijk.",
+  "condition": {
+   "type": "building_count",
+   "building": "kleine_bakker",
+   "count": 50
+  }
+ },
+ {
+  "id": "bakkerij_50",
+  "name": "Straat vol bakkerijen",
+  "description": "Heb 50 bakkerijen tegelijk.",
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerij",
+   "count": 50
+  }
+ },
+ {
+  "id": "oven_100",
+  "name": "Heet hangijzer",
+  "description": "Heb 100 professionele ovens tegelijk.",
+  "condition": {
+   "type": "building_count",
+   "building": "oven",
+   "count": 100
+  }
+ },
+ {
+  "id": "fondantmijn_1",
+  "name": "Diep graven",
+  "description": "Open je eerste fondantmijn.",
+  "condition": {
+   "type": "building_count",
+   "building": "fondantmijn",
+   "count": 1
+  }
+ },
+ {
+  "id": "fabriek_1",
+  "name": "Fabrieksgeheim",
+  "description": "Bouw je eerste roze koek-fabriek.",
+  "condition": {
+   "type": "building_count",
+   "building": "fabriek",
+   "count": 1
+  }
+ },
+ {
+  "id": "upgrades_10",
+  "name": "Verbeteraar",
+  "description": "Bezit 10 upgrades tegelijk.",
+  "condition": {
+   "type": "upgrades_owned",
+   "value": 10
+  }
+ },
+ {
+  "id": "upgrades_50",
+  "name": "Perfectionist",
+  "description": "Bezit 50 upgrades tegelijk.",
+  "condition": {
+   "type": "upgrades_owned",
+   "value": 50
+  }
+ },
+ {
+  "id": "golden_1",
+  "name": "Goudzoeker",
+  "description": "Vang een gouden roze koek.",
+  "condition": {
+   "type": "golden_clicked",
+   "value": 1
+  }
+ },
+ {
+  "id": "golden_25",
+  "name": "Goudkoorts",
+  "description": "Vang 25 gouden roze koeken.",
+  "condition": {
+   "type": "golden_clicked",
+   "value": 25
+  }
+ },
+ {
+  "id": "friend_1",
+  "name": "Niet alleen",
+  "description": "Rekruteer je eerste vriend.",
+  "condition": {
+   "type": "friends_recruited",
+   "value": 1
+  }
+ },
+ {
+  "id": "friend_all",
+  "name": "De hele bende",
+  "description": "Rekruteer al je vrienden.",
+  "condition": {
+   "type": "friends_all"
+  }
+ },
+ {
+  "id": "prestige_1",
+  "name": "Herglazuurd",
+  "description": "Herglazuur voor de eerste keer.",
+  "condition": {
+   "type": "prestiges",
+   "value": 1
+  }
+ },
+ {
+  "id": "streak_7",
+  "name": "Trouwe bakker",
+  "description": "Voltooi 7 dagen op rij alle dagelijkse uitdagingen.",
+  "condition": {
+   "type": "flag",
+   "flag": "streak_7"
+  }
+ },
+ {
+  "id": "secret_name",
+  "name": "Ik ben de koek",
+  "description": "Tik 7 keer op de naam van je bakkerij.",
+  "condition": {
+   "type": "upgrade_owned",
+   "upgrade": "secret_ikbendekoek"
+  },
+  "secret": true
+ },
+ {
+  "id": "secret_speed",
+  "name": "Rustig aan!",
+  "description": "Tik 100 keer binnen 10 seconden.",
+  "condition": {
+   "type": "flag",
+   "flag": "speed_clicker"
+  },
+  "secret": true
+ },
+ {
+  "id": "secret_night",
+  "name": "Nachtbakker",
+  "description": "Speel tussen 3 en 4 uur 's nachts.",
+  "condition": {
+   "type": "flag",
+   "flag": "night_baker"
+  },
+  "secret": true
+ }
+]

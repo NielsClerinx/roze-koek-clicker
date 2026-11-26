@@ -6,7 +6,10 @@ const CookieView := preload("res://scripts/ui/cookie_view.gd")
 const ShopRow := preload("res://scripts/ui/shop_row.gd")
 const GoldenCookie := preload("res://scripts/ui/golden_cookie.gd")
 const FriendsUI := preload("res://scripts/ui/friends_ui.gd")
+const AchievementsUI := preload("res://scripts/ui/achievements_ui.gd")
+const HeavenUI := preload("res://scripts/ui/heaven_ui.gd")
 
+const TAB_NAMES := ["Gebouwen", "Upgrades", "Vrienden", "Prestaties", "Meer"]
 const BUY_AMOUNTS := [1, 10, 100, 0]   # 0 = Max
 const UPGRADE_COLORS := {
 	"click": Color("#F26B9E"), "global": Color("#B39DDB"), "offline": Color("#80CBC4"),
@@ -43,6 +46,8 @@ var _name_taps := 0
 var _rng := RandomNumberGenerator.new()
 var _friends: FriendsUI
 var _friend_layer: Control
+var _achievements: AchievementsUI
+var _heaven: HeavenUI
 
 func _ready() -> void:
 	_rng.randomize()
@@ -143,6 +148,12 @@ func _build_layout() -> void:
 	_friends = FriendsUI.new()
 	add_child(_friends)
 	_friends.setup(self, _friend_layer, back_layer)
+	_achievements = AchievementsUI.new()
+	add_child(_achievements)
+	_achievements.setup(self)
+	_heaven = HeavenUI.new()
+	add_child(_heaven)
+	_heaven.setup(self)
 
 	# --- Paneel
 	var sheet := PanelContainer.new()
@@ -164,17 +175,25 @@ func _build_layout() -> void:
 	var tabs := HBoxContainer.new()
 	tabs.add_theme_constant_override("separation", 8)
 	sv.add_child(tabs)
-	for t in ["Gebouwen", "Upgrades", "Vrienden", "Meer"]:
+	tabs.add_theme_constant_override("separation", 6)
+	for t in TAB_NAMES:
 		var b := Button.new()
 		b.text = t
 		b.toggle_mode = true
 		b.focus_mode = Control.FOCUS_NONE
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.custom_minimum_size = Vector2(0, 56)
-		b.add_theme_font_size_override("font_size", 20)
+		b.add_theme_font_size_override("font_size", 17)
 		b.clip_text = true
-		b.add_theme_stylebox_override("pressed", Palette.box(Palette.PINK_DEEP, 22))
-		b.add_theme_stylebox_override("hover_pressed", Palette.box(Palette.PINK_DEEP, 22))
+		b.add_theme_constant_override("h_separation", 0)
+		# Vijf tabs: smallere binnenmarge zodat "Prestaties (2)" past
+		var cols := {"normal": Palette.PINK_LIGHT, "hover": Palette.PINK_LIGHT.lightened(0.2),
+			"pressed": Palette.PINK_DEEP, "hover_pressed": Palette.PINK_DEEP}
+		for st in cols.keys():
+			var sb := Palette.box(cols[st], 22)
+			sb.content_margin_left = 4
+			sb.content_margin_right = 4
+			b.add_theme_stylebox_override(st, sb)
 		b.add_theme_color_override("font_pressed_color", Palette.WHITE)
 		b.add_theme_color_override("font_hover_pressed_color", Palette.WHITE)
 		var idx := _tab_buttons.size()
@@ -185,7 +204,7 @@ func _build_layout() -> void:
 	var pages := Control.new()
 	pages.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	sv.add_child(pages)
-	_pages = [_build_buildings_page(), _build_upgrades_page(), _friends.build_page(), _build_more_page()]
+	_pages = [_build_buildings_page(), _build_upgrades_page(), _friends.build_page(), _achievements.build_page(), _build_more_page()]
 	for p in _pages:
 		p.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		pages.add_child(p)
@@ -289,6 +308,7 @@ func _build_more_page() -> Control:
 	_prestige_btn.focus_mode = Control.FOCUS_NONE
 	_prestige_btn.pressed.connect(_on_prestige_pressed)
 	list.add_child(_prestige_btn)
+	_heaven.build_section(list)
 	list.add_child(Palette.label("Instellingen", 26, Palette.CHOCO, Palette.title_font()))
 	var vib := CheckButton.new()
 	vib.text = "Trillen bij kritieke klik"
@@ -407,7 +427,7 @@ func _on_golden_spawned() -> void:
 	_golden.position = Vector2(
 		_rng.randf_range(area.position.x + 10, area.end.x - 120),
 		_rng.randf_range(area.position.y + 10, area.end.y - 120))
-	_golden.lifetime = RandomEventSystem.GOLDEN_LIFETIME
+	_golden.lifetime = Economy.golden_lifetime()
 	_golden.claimed.connect(func(p: Vector2):
 		RandomEventSystem.claim_golden()
 		_spawn_floater("GOUDEN KOEK!", p, true))
@@ -527,7 +547,7 @@ func _refresh_top() -> void:
 	_kps_label.text = "roze koeken · %s per seconde" % NumberFormat.format(Economy.kps(), true)
 
 func _refresh(force: bool) -> void:
-	if _pages.size() < 4:
+	if _pages.size() < TAB_NAMES.size():
 		return   # UI wordt nog opgebouwd
 	_refresh_top()
 	var name_btn: Button = get_meta("name_btn")
@@ -544,8 +564,13 @@ func _refresh(force: bool) -> void:
 	_friends.refresh_field()
 	if _pages[2].visible or force:
 		_friends.refresh_page()
-	if _pages[3].visible:
+	if _pages[3].visible or force:
+		_achievements.refresh_page()
+	var claim := _achievements.claimable()
+	_tab_buttons[3].text = "Prestaties" + (" (%d)" % claim if claim > 0 else "")
+	if _pages[4].visible:
 		_refresh_more()
+		_heaven.refresh()
 
 func _refresh_buildings() -> void:
 	var shown_locked := false
@@ -623,11 +648,13 @@ func _refresh_more() -> void:
 	var lines := [
 		"Gebakken deze run: %s" % NumberFormat.format(GameState.baked_run),
 		"Ooit gebakken: %s" % NumberFormat.format(GameState.baked_lifetime),
-		"Kliks: %s (kritiek: %s)" % [NumberFormat.format(GameState.clicks), NumberFormat.format(GameState.crits)],
+		"Kliks: %s (kritiek: %s), ooit: %s" % [NumberFormat.format(GameState.clicks), NumberFormat.format(GameState.crits), NumberFormat.format(GameState.clicks_total)],
 		"Per klik: %s" % NumberFormat.format(Economy.click_value(), true),
 		"Kritieke kans: %d%% (x%d)" % [int(round(Economy.crit_chance() * 100)), int(Economy.crit_mult())],
 		"Gouden koeken gevangen: %d" % GameState.golden_clicked,
-		"Fondantkristallen: %d (+%d%% productie)" % [GameState.crystals, GameState.crystals * 2],
+		"Fondantkristallen: %d (+%d%% productie, %d te besteden)" % [GameState.crystals, GameState.crystals * 2, GameState.crystals_available()],
+		"Prestaties: %d/%d (+%d%% productie)" % [AchievementSystem.unlocked_count(), GameData.achievements.size(), AchievementSystem.unlocked_count()],
+		"Roze Lintjes: %d" % GameState.ribbons,
 		"Offline: %d%% tot %s" % [int(Economy.offline_efficiency() * 100), NumberFormat.duration(Economy.offline_cap_seconds())],
 		"Speeltijd: %s" % NumberFormat.duration(GameState.play_seconds),
 	]

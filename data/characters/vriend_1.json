@@ -1,0 +1,21 @@
+{
+  "id": "vriend_1",
+  "name": "Vriend 1",
+  "nickname": "De Woudbaron",
+  "role": "Hoofd van de Fondantmijn",
+  "description": "Kijkt altijd alsof hij net een slecht gebakken koek heeft geproefd. Woont half in het bos, draagt een strohoed en een kruisje, en vertrouwt niemand behalve zijn hond Snuffel.",
+  "intro": "Ik heb jouw koek bekeken. Hmm. Er kan nog veel beter. Snuffel en ik nemen de mijn over.",
+  "unlock_cost": 5000,
+  "unlock_condition": {"type": "building_count", "building": "fondantmijn", "count": 1},
+  "passive_bonus": [
+    {"type": "building_mult", "target": "fondantmijn", "value": 1.5},
+    {"type": "golden_freq_mult", "value": 1.1}
+  ],
+  "ability": {"type": "golden_rain", "name": "Snuffelneus", "description": "Snuffel ruikt een gouden roze koek en blaft hem tevoorschijn.", "value": 1, "duration": 0, "cooldown": 900},
+  "look": {
+    "skin": "#F1C7A5", "hair": "#3B2418", "hair_length": "long", "beard": "full", "beard_grey": true,
+    "brows": "skeptical", "eyes": "#6B4423", "shirt": "#5E6B3A", "undershirt": "#46512C", "pants": "#3A3530",
+    "hat": "straw_fedora", "earring": true, "necklaces": ["cord_stone", "crucifix"], "companion": "pinscher"
+  },
+  "animation": "friend_figure"
+}

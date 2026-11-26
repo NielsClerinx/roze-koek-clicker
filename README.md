@@ -17,6 +17,10 @@ Test economie, prijzen, upgrades, kliks, offline-berekening, opslaan/laden, kapo
 - Gebouwen en upgrades: pas `tools/gen_data.py` aan en draai `python3 tools/gen_data.py` (schrijft `data/*.json`).
 - Vrienden: kopieer `data/characters/_template.json` naar `data/characters/<id>.json`. Geen code nodig.
 
+## Spelen en delen
+- Startpagina met browserversie en Android-download: https://nielsclerinx.github.io/roze-koek-clicker/
+- Bouwen: `tools/build_release.sh` (web + Android-APK in `export/`). De webversie staat op de branch `gh-pages`.
+
 ## Status: v0.3 (prestaties, uitdagingen, Roze Hemel)
 - **Prestaties**: 27 medailles (3 geheim), elk +1% productie, blijven na herglazuren.
 - **Dagelijkse uitdagingen**: elke dag 3 opdrachten (zelfde soort voor iedereen, doelen schalen mee).

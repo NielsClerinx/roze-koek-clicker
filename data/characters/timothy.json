@@ -1,0 +1,22 @@
+{
+  "id": "timothy",
+  "name": "Timothy",
+  "nickname": "Timothy",
+  "role": "Hoofd Kwaliteitscontrole (proeft alles, ook de drankjes)",
+  "description": "Glanzende schedel, zelfvoldane grijns en een haai op zijn arm. Keurt elke roze koek met halfgesloten ogen en zegt dan altijd: 'Kan beter, maar ik neem er nog één.'",
+  "intro": "Ik ben hier voor de kwaliteitscontrole. Heb je toevallig ook iets te drinken bij die koek?",
+  "unlock_cost": 600,
+  "unlock_condition": {"type": "building_count", "building": "bakkerij", "count": 1},
+  "passive_bonus": [
+    {"type": "building_mult", "target": "bakkerij", "value": 1.5},
+    {"type": "crit_chance_add", "value": 0.02}
+  ],
+  "ability": {"type": "production_boost", "name": "Proost!", "description": "Timothy heft het glas: alle productie x3 gedurende 30 seconden.", "value": 3, "duration": 30, "cooldown": 600},
+  "look": {
+    "skin": "#F3C6AE", "hair": "#9A6338", "hair_style": "bald", "hair_length": "none", "beard": "goatee",
+    "brows": "relaxed", "brow_color": "#A8784E", "eyes": "#6E8A99", "eye_shape": "squint", "cheeks": true,
+    "build": "stocky", "shirt": "#F4F1EA", "shirt_style": "tee", "sleeves": "short", "tattoo": true,
+    "pants": "#3E4A5C", "hat": "", "prop": "beer", "ability_pose": "cheers", "companion": ""
+  },
+  "animation": "friend_figure"
+}

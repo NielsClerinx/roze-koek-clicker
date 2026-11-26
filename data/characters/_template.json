@@ -1,0 +1,21 @@
+{
+  "id": "voorbeeld",
+  "name": "Voornaam",
+  "nickname": "De Bijnaam",
+  "role": "Wat doet deze vriend in het roze-koekenimperium?",
+  "description": "Twee of drie grappige zinnen over het karakter.",
+  "intro": "Tekstballon die verschijnt wanneer je deze vriend rekruteert.",
+  "unlock_cost": 5000,
+  "unlock_condition": {"type": "building_count", "building": "bakkerij", "count": 5},
+  "passive_bonus": [
+    {"type": "building_mult", "target": "bakkerij", "value": 1.5}
+  ],
+  "ability": {"type": "click_frenzy", "value": 10, "duration": 20, "cooldown": 600},
+  "art": {
+    "portrait": "res://assets/characters/voorbeeld/portrait.png",
+    "idle": "res://assets/characters/voorbeeld/idle.png",
+    "ability": "res://assets/characters/voorbeeld/ability.png",
+    "happy": "res://assets/characters/voorbeeld/happy.png"
+  },
+  "animation": "wobble"
+}

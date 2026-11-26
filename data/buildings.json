@@ -1,0 +1,122 @@
+[
+ {
+  "id": "kleine_bakker",
+  "name": "Kleine bakker",
+  "base_cost": 15,
+  "base_kps": 0.1,
+  "color": "#F7A8C4",
+  "description": "Een mannetje met een te grote koksmuts. Bakt traag, maar met liefde."
+ },
+ {
+  "id": "bakkerij",
+  "name": "Bakkerij",
+  "base_cost": 110,
+  "base_kps": 1,
+  "color": "#F48FB1",
+  "description": "Een hoekbakkerij met roze luifel. Ruikt naar fondant en ambitie."
+ },
+ {
+  "id": "oven",
+  "name": "Professionele oven",
+  "base_cost": 1200,
+  "base_kps": 8,
+  "color": "#E57399",
+  "description": "Glimmend, heet en altijd vol. Zelfs de deur is roze."
+ },
+ {
+  "id": "fondantmijn",
+  "name": "Fondantmijn",
+  "base_cost": 13000,
+  "base_kps": 45,
+  "color": "#D9668F",
+  "description": "Diep in de berg ligt roze fondant. Mijnwerkers zingen erbij."
+ },
+ {
+  "id": "industriele_bakkerij",
+  "name": "Industriële bakkerij",
+  "base_cost": 140000,
+  "base_kps": 250,
+  "color": "#C9A0DC",
+  "description": "Rokende schoorstenen, ploegendiensten en een koffieautomaat."
+ },
+ {
+  "id": "fabriek",
+  "name": "Roze koek-fabriek",
+  "base_cost": 1500000.0,
+  "base_kps": 1400,
+  "color": "#B39DDB",
+  "description": "Een fabriek in de vorm van een gigantische roze koek. Uiteraard."
+ },
+ {
+  "id": "productielijn",
+  "name": "Geautomatiseerde productielijn",
+  "base_cost": 18000000.0,
+  "base_kps": 8000,
+  "color": "#9FA8DA",
+  "description": "Grijparmen, glazuurspuiten en nul pauzes."
+ },
+ {
+  "id": "robotbakkers",
+  "name": "Robotbakkers",
+  "base_cost": 240000000.0,
+  "base_kps": 45000,
+  "color": "#90CAF9",
+  "description": "Robots met schortjes. Hun glimlach is iets té breed."
+ },
+ {
+  "id": "bakkerijketen",
+  "name": "Internationale bakkerijketen",
+  "base_cost": 3200000000.0,
+  "base_kps": 260000,
+  "color": "#80DEEA",
+  "description": "Van Tilburg tot Tokio: overal roze koeken."
+ },
+ {
+  "id": "maffia",
+  "name": "Roze koek-maffia",
+  "base_cost": 45000000000.0,
+  "base_kps": 1600000.0,
+  "color": "#80CBC4",
+  "description": "Een aanbod dat niemand kan weigeren. Krijtstreep en fondant."
+ },
+ {
+  "id": "laboratorium",
+  "name": "Ondergronds laboratorium",
+  "base_cost": 650000000000.0,
+  "base_kps": 10000000.0,
+  "color": "#A5D6A7",
+  "description": "Bubbelende reageerbuizen. Niemand weet wat er in de kelder gebeurt."
+ },
+ {
+  "id": "ruimtefabriek",
+  "name": "Ruimtefabriek",
+  "base_cost": 9500000000000.0,
+  "base_kps": 64000000.0,
+  "color": "#C5E1A5",
+  "description": "Laat roze koeken als meteoren op de aarde regenen."
+ },
+ {
+  "id": "tijdmachine",
+  "name": "Tijdmachine",
+  "base_cost": 140000000000000.0,
+  "base_kps": 420000000.0,
+  "color": "#FFE082",
+  "description": "Haalt koeken op die je gisteren al gebakken hebt."
+ },
+ {
+  "id": "multiversum",
+  "name": "Multiversumfabriek",
+  "base_cost": 2100000000000000.0,
+  "base_kps": 2800000000.0,
+  "color": "#FFCC80",
+  "description": "Ergens is er een universum waar alles roze koek is. Dit is de fabriek daar."
+ },
+ {
+  "id": "goddelijk",
+  "name": "Goddelijke roze koekproductie",
+  "base_cost": 3.2e+16,
+  "base_kps": 20000000000.0,
+  "color": "#FFAB91",
+  "description": "De Opperkoek is ontwaakt. Hij bakt zichzelf."
+ }
+]

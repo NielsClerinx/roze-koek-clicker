@@ -1,0 +1,1956 @@
+[
+ {
+  "id": "click_1",
+  "name": "Dubbele vingers",
+  "description": "Twee vingers tikken beter dan één. Klikkracht x2.",
+  "cost": 100,
+  "condition": {
+   "type": "building_count",
+   "building": "kleine_bakker",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "click_mult",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "click_2",
+  "name": "Kneedhanden",
+  "description": "Sterke handen van het vele kneden. Klikkracht x2.",
+  "cost": 500,
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerij",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "click_mult",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "click_3",
+  "name": "Glazuurduim",
+  "description": "Je duim is permanent roze. Klikkracht x2.",
+  "cost": 10000,
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerij",
+   "count": 10
+  },
+  "effects": [
+   {
+    "type": "click_mult",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "click_4",
+  "name": "Fondantvuist",
+  "description": "Elke tik levert extra 1% van je koeken per seconde op.",
+  "cost": 500000.0,
+  "condition": {
+   "type": "total_baked",
+   "value": 1000000.0
+  },
+  "effects": [
+   {
+    "type": "click_kps_pct",
+    "value": 0.01
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "click_5",
+  "name": "Roze reflexen",
+  "description": "Kritieke kans +4%.",
+  "cost": 50000000.0,
+  "condition": {
+   "type": "total_baked",
+   "value": 100000000.0
+  },
+  "effects": [
+   {
+    "type": "crit_chance_add",
+    "value": 0.04
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "click_6",
+  "name": "Tikmonster",
+  "description": "+2% van KPS per tik en kritieke klikken x15 in plaats van x10.",
+  "cost": 5000000000.0,
+  "condition": {
+   "type": "total_baked",
+   "value": 10000000000.0
+  },
+  "effects": [
+   {
+    "type": "click_kps_pct",
+    "value": 0.02
+   },
+   {
+    "type": "crit_mult_set",
+    "value": 15
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "kleine_bakker_t1",
+  "name": "Grotere koksmuts",
+  "description": "Kleine bakker: productie x2.",
+  "cost": 150,
+  "condition": {
+   "type": "building_count",
+   "building": "kleine_bakker",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "kleine_bakker",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "kleine_bakker_t2",
+  "name": "Oma's geheime deegroller",
+  "description": "Kleine bakker: productie x2.",
+  "cost": 750,
+  "condition": {
+   "type": "building_count",
+   "building": "kleine_bakker",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "kleine_bakker",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "kleine_bakker_t3",
+  "name": "Kleine bakker Deluxe",
+  "description": "Kleine bakker: productie x2.",
+  "cost": 7500,
+  "condition": {
+   "type": "building_count",
+   "building": "kleine_bakker",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "kleine_bakker",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "kleine_bakker_t4",
+  "name": "Kleine bakker Ultra",
+  "description": "Kleine bakker: productie x2.",
+  "cost": 750000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "kleine_bakker",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "kleine_bakker",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "kleine_bakker_t5",
+  "name": "Kleine bakker Absurd",
+  "description": "Kleine bakker: productie x2.",
+  "cost": 75000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "kleine_bakker",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "kleine_bakker",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "kleine_bakker_t6",
+  "name": "Kleine bakker Kosmisch",
+  "description": "Kleine bakker: productie x2.",
+  "cost": 7500000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "kleine_bakker",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "kleine_bakker",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "bakkerij_t1",
+  "name": "Neonbord \"Vers!\"",
+  "description": "Bakkerij: productie x2.",
+  "cost": 1100,
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerij",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "bakkerij",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "bakkerij_t2",
+  "name": "Wachtrij tot op straat",
+  "description": "Bakkerij: productie x2.",
+  "cost": 5500,
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerij",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "bakkerij",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "bakkerij_t3",
+  "name": "Bakkerij Deluxe",
+  "description": "Bakkerij: productie x2.",
+  "cost": 55000,
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerij",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "bakkerij",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "bakkerij_t4",
+  "name": "Bakkerij Ultra",
+  "description": "Bakkerij: productie x2.",
+  "cost": 5500000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerij",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "bakkerij",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "bakkerij_t5",
+  "name": "Bakkerij Absurd",
+  "description": "Bakkerij: productie x2.",
+  "cost": 550000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerij",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "bakkerij",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "bakkerij_t6",
+  "name": "Bakkerij Kosmisch",
+  "description": "Bakkerij: productie x2.",
+  "cost": 55000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerij",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "bakkerij",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "oven_t1",
+  "name": "Turbo-hete lucht",
+  "description": "Professionele oven: productie x2.",
+  "cost": 12000,
+  "condition": {
+   "type": "building_count",
+   "building": "oven",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "oven",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "oven_t2",
+  "name": "Zelfreinigend glazuur",
+  "description": "Professionele oven: productie x2.",
+  "cost": 60000,
+  "condition": {
+   "type": "building_count",
+   "building": "oven",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "oven",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "oven_t3",
+  "name": "Professionele oven Deluxe",
+  "description": "Professionele oven: productie x2.",
+  "cost": 600000,
+  "condition": {
+   "type": "building_count",
+   "building": "oven",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "oven",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "oven_t4",
+  "name": "Professionele oven Ultra",
+  "description": "Professionele oven: productie x2.",
+  "cost": 60000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "oven",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "oven",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "oven_t5",
+  "name": "Professionele oven Absurd",
+  "description": "Professionele oven: productie x2.",
+  "cost": 6000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "oven",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "oven",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "oven_t6",
+  "name": "Professionele oven Kosmisch",
+  "description": "Professionele oven: productie x2.",
+  "cost": 600000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "oven",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "oven",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "fondantmijn_t1",
+  "name": "Roze dynamiet",
+  "description": "Fondantmijn: productie x2.",
+  "cost": 130000,
+  "condition": {
+   "type": "building_count",
+   "building": "fondantmijn",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "fondantmijn",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "fondantmijn_t2",
+  "name": "Zuurstokhelmen",
+  "description": "Fondantmijn: productie x2.",
+  "cost": 650000,
+  "condition": {
+   "type": "building_count",
+   "building": "fondantmijn",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "fondantmijn",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "fondantmijn_t3",
+  "name": "Fondantmijn Deluxe",
+  "description": "Fondantmijn: productie x2.",
+  "cost": 6500000,
+  "condition": {
+   "type": "building_count",
+   "building": "fondantmijn",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "fondantmijn",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "fondantmijn_t4",
+  "name": "Fondantmijn Ultra",
+  "description": "Fondantmijn: productie x2.",
+  "cost": 650000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "fondantmijn",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "fondantmijn",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "fondantmijn_t5",
+  "name": "Fondantmijn Absurd",
+  "description": "Fondantmijn: productie x2.",
+  "cost": 65000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "fondantmijn",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "fondantmijn",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "fondantmijn_t6",
+  "name": "Fondantmijn Kosmisch",
+  "description": "Fondantmijn: productie x2.",
+  "cost": 6500000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "fondantmijn",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "fondantmijn",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "industriele_bakkerij_t1",
+  "name": "Ploegendienst",
+  "description": "Industriële bakkerij: productie x2.",
+  "cost": 1400000,
+  "condition": {
+   "type": "building_count",
+   "building": "industriele_bakkerij",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "industriele_bakkerij",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "industriele_bakkerij_t2",
+  "name": "Vakbondskoekjes",
+  "description": "Industriële bakkerij: productie x2.",
+  "cost": 7000000,
+  "condition": {
+   "type": "building_count",
+   "building": "industriele_bakkerij",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "industriele_bakkerij",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "industriele_bakkerij_t3",
+  "name": "Industriële bakkerij Deluxe",
+  "description": "Industriële bakkerij: productie x2.",
+  "cost": 70000000,
+  "condition": {
+   "type": "building_count",
+   "building": "industriele_bakkerij",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "industriele_bakkerij",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "industriele_bakkerij_t4",
+  "name": "Industriële bakkerij Ultra",
+  "description": "Industriële bakkerij: productie x2.",
+  "cost": 7000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "industriele_bakkerij",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "industriele_bakkerij",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "industriele_bakkerij_t5",
+  "name": "Industriële bakkerij Absurd",
+  "description": "Industriële bakkerij: productie x2.",
+  "cost": 700000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "industriele_bakkerij",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "industriele_bakkerij",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "industriele_bakkerij_t6",
+  "name": "Industriële bakkerij Kosmisch",
+  "description": "Industriële bakkerij: productie x2.",
+  "cost": 70000000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "industriele_bakkerij",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "industriele_bakkerij",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "fabriek_t1",
+  "name": "Roze lopende banden",
+  "description": "Roze koek-fabriek: productie x2.",
+  "cost": 15000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "fabriek",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "fabriek",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "fabriek_t2",
+  "name": "Dubbele glazuurlaag",
+  "description": "Roze koek-fabriek: productie x2.",
+  "cost": 75000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "fabriek",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "fabriek",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "fabriek_t3",
+  "name": "Roze koek-fabriek Deluxe",
+  "description": "Roze koek-fabriek: productie x2.",
+  "cost": 750000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "fabriek",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "fabriek",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "fabriek_t4",
+  "name": "Roze koek-fabriek Ultra",
+  "description": "Roze koek-fabriek: productie x2.",
+  "cost": 75000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "fabriek",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "fabriek",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "fabriek_t5",
+  "name": "Roze koek-fabriek Absurd",
+  "description": "Roze koek-fabriek: productie x2.",
+  "cost": 7500000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "fabriek",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "fabriek",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "fabriek_t6",
+  "name": "Roze koek-fabriek Kosmisch",
+  "description": "Roze koek-fabriek: productie x2.",
+  "cost": 750000000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "fabriek",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "fabriek",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "productielijn_t1",
+  "name": "Firmware 2.0",
+  "description": "Geautomatiseerde productielijn: productie x2.",
+  "cost": 180000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "productielijn",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "productielijn",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "productielijn_t2",
+  "name": "AI-glazuurspuit",
+  "description": "Geautomatiseerde productielijn: productie x2.",
+  "cost": 900000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "productielijn",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "productielijn",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "productielijn_t3",
+  "name": "Geautomatiseerde productielijn Deluxe",
+  "description": "Geautomatiseerde productielijn: productie x2.",
+  "cost": 9000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "productielijn",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "productielijn",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "productielijn_t4",
+  "name": "Geautomatiseerde productielijn Ultra",
+  "description": "Geautomatiseerde productielijn: productie x2.",
+  "cost": 900000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "productielijn",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "productielijn",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "productielijn_t5",
+  "name": "Geautomatiseerde productielijn Absurd",
+  "description": "Geautomatiseerde productielijn: productie x2.",
+  "cost": 90000000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "productielijn",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "productielijn",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "productielijn_t6",
+  "name": "Geautomatiseerde productielijn Kosmisch",
+  "description": "Geautomatiseerde productielijn: productie x2.",
+  "cost": 9000000000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "productielijn",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "productielijn",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "robotbakkers_t1",
+  "name": "Robotschortjes",
+  "description": "Robotbakkers: productie x2.",
+  "cost": 2400000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "robotbakkers",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "robotbakkers",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "robotbakkers_t2",
+  "name": "Robots met gevoel",
+  "description": "Robotbakkers: productie x2.",
+  "cost": 12000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "robotbakkers",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "robotbakkers",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "robotbakkers_t3",
+  "name": "Robotbakkers Deluxe",
+  "description": "Robotbakkers: productie x2.",
+  "cost": 120000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "robotbakkers",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "robotbakkers",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "robotbakkers_t4",
+  "name": "Robotbakkers Ultra",
+  "description": "Robotbakkers: productie x2.",
+  "cost": 12000000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "robotbakkers",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "robotbakkers",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "robotbakkers_t5",
+  "name": "Robotbakkers Absurd",
+  "description": "Robotbakkers: productie x2.",
+  "cost": 1200000000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "robotbakkers",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "robotbakkers",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "robotbakkers_t6",
+  "name": "Robotbakkers Kosmisch",
+  "description": "Robotbakkers: productie x2.",
+  "cost": 1.2e+17,
+  "condition": {
+   "type": "building_count",
+   "building": "robotbakkers",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "robotbakkers",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "bakkerijketen_t1",
+  "name": "Franchise in Tilburg",
+  "description": "Internationale bakkerijketen: productie x2.",
+  "cost": 32000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerijketen",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "bakkerijketen",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "bakkerijketen_t2",
+  "name": "Filiaal op de Noordpool",
+  "description": "Internationale bakkerijketen: productie x2.",
+  "cost": 160000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerijketen",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "bakkerijketen",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "bakkerijketen_t3",
+  "name": "Internationale bakkerijketen Deluxe",
+  "description": "Internationale bakkerijketen: productie x2.",
+  "cost": 1600000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerijketen",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "bakkerijketen",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "bakkerijketen_t4",
+  "name": "Internationale bakkerijketen Ultra",
+  "description": "Internationale bakkerijketen: productie x2.",
+  "cost": 160000000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerijketen",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "bakkerijketen",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "bakkerijketen_t5",
+  "name": "Internationale bakkerijketen Absurd",
+  "description": "Internationale bakkerijketen: productie x2.",
+  "cost": 1.6e+16,
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerijketen",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "bakkerijketen",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "bakkerijketen_t6",
+  "name": "Internationale bakkerijketen Kosmisch",
+  "description": "Internationale bakkerijketen: productie x2.",
+  "cost": 1.6e+18,
+  "condition": {
+   "type": "building_count",
+   "building": "bakkerijketen",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "bakkerijketen",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "maffia_t1",
+  "name": "Een aanbod dat je niet kunt weigeren",
+  "description": "Roze koek-maffia: productie x2.",
+  "cost": 450000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "maffia",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "maffia",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "maffia_t2",
+  "name": "Witwassen in de vaatwasser",
+  "description": "Roze koek-maffia: productie x2.",
+  "cost": 2250000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "maffia",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "maffia",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "maffia_t3",
+  "name": "Roze koek-maffia Deluxe",
+  "description": "Roze koek-maffia: productie x2.",
+  "cost": 22500000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "maffia",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "maffia",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "maffia_t4",
+  "name": "Roze koek-maffia Ultra",
+  "description": "Roze koek-maffia: productie x2.",
+  "cost": 2250000000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "maffia",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "maffia",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "maffia_t5",
+  "name": "Roze koek-maffia Absurd",
+  "description": "Roze koek-maffia: productie x2.",
+  "cost": 2.25e+17,
+  "condition": {
+   "type": "building_count",
+   "building": "maffia",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "maffia",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "maffia_t6",
+  "name": "Roze koek-maffia Kosmisch",
+  "description": "Roze koek-maffia: productie x2.",
+  "cost": 2.25e+19,
+  "condition": {
+   "type": "building_count",
+   "building": "maffia",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "maffia",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "laboratorium_t1",
+  "name": "Gekloonde koeken",
+  "description": "Ondergronds laboratorium: productie x2.",
+  "cost": 6500000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "laboratorium",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "laboratorium",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "laboratorium_t2",
+  "name": "Fondant-isotopen",
+  "description": "Ondergronds laboratorium: productie x2.",
+  "cost": 32500000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "laboratorium",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "laboratorium",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "laboratorium_t3",
+  "name": "Ondergronds laboratorium Deluxe",
+  "description": "Ondergronds laboratorium: productie x2.",
+  "cost": 325000000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "laboratorium",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "laboratorium",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "laboratorium_t4",
+  "name": "Ondergronds laboratorium Ultra",
+  "description": "Ondergronds laboratorium: productie x2.",
+  "cost": 3.25e+16,
+  "condition": {
+   "type": "building_count",
+   "building": "laboratorium",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "laboratorium",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "laboratorium_t5",
+  "name": "Ondergronds laboratorium Absurd",
+  "description": "Ondergronds laboratorium: productie x2.",
+  "cost": 3.25e+18,
+  "condition": {
+   "type": "building_count",
+   "building": "laboratorium",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "laboratorium",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "laboratorium_t6",
+  "name": "Ondergronds laboratorium Kosmisch",
+  "description": "Ondergronds laboratorium: productie x2.",
+  "cost": 3.25e+20,
+  "condition": {
+   "type": "building_count",
+   "building": "laboratorium",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "laboratorium",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "ruimtefabriek_t1",
+  "name": "Nul-zwaartekracht-glazuur",
+  "description": "Ruimtefabriek: productie x2.",
+  "cost": 95000000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "ruimtefabriek",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "ruimtefabriek",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "ruimtefabriek_t2",
+  "name": "Koekenmeteoren",
+  "description": "Ruimtefabriek: productie x2.",
+  "cost": 475000000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "ruimtefabriek",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "ruimtefabriek",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "ruimtefabriek_t3",
+  "name": "Ruimtefabriek Deluxe",
+  "description": "Ruimtefabriek: productie x2.",
+  "cost": 4750000000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "ruimtefabriek",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "ruimtefabriek",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "ruimtefabriek_t4",
+  "name": "Ruimtefabriek Ultra",
+  "description": "Ruimtefabriek: productie x2.",
+  "cost": 4.75e+17,
+  "condition": {
+   "type": "building_count",
+   "building": "ruimtefabriek",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "ruimtefabriek",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "ruimtefabriek_t5",
+  "name": "Ruimtefabriek Absurd",
+  "description": "Ruimtefabriek: productie x2.",
+  "cost": 4.75e+19,
+  "condition": {
+   "type": "building_count",
+   "building": "ruimtefabriek",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "ruimtefabriek",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "ruimtefabriek_t6",
+  "name": "Ruimtefabriek Kosmisch",
+  "description": "Ruimtefabriek: productie x2.",
+  "cost": 4.75e+21,
+  "condition": {
+   "type": "building_count",
+   "building": "ruimtefabriek",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "ruimtefabriek",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "tijdmachine_t1",
+  "name": "Gisteren al gebakken",
+  "description": "Tijdmachine: productie x2.",
+  "cost": 1400000000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "tijdmachine",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "tijdmachine",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "tijdmachine_t2",
+  "name": "Paradoxale ovens",
+  "description": "Tijdmachine: productie x2.",
+  "cost": 7000000000000000.0,
+  "condition": {
+   "type": "building_count",
+   "building": "tijdmachine",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "tijdmachine",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "tijdmachine_t3",
+  "name": "Tijdmachine Deluxe",
+  "description": "Tijdmachine: productie x2.",
+  "cost": 7e+16,
+  "condition": {
+   "type": "building_count",
+   "building": "tijdmachine",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "tijdmachine",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "tijdmachine_t4",
+  "name": "Tijdmachine Ultra",
+  "description": "Tijdmachine: productie x2.",
+  "cost": 7e+18,
+  "condition": {
+   "type": "building_count",
+   "building": "tijdmachine",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "tijdmachine",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "tijdmachine_t5",
+  "name": "Tijdmachine Absurd",
+  "description": "Tijdmachine: productie x2.",
+  "cost": 7e+20,
+  "condition": {
+   "type": "building_count",
+   "building": "tijdmachine",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "tijdmachine",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "tijdmachine_t6",
+  "name": "Tijdmachine Kosmisch",
+  "description": "Tijdmachine: productie x2.",
+  "cost": 7e+22,
+  "condition": {
+   "type": "building_count",
+   "building": "tijdmachine",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "tijdmachine",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "multiversum_t1",
+  "name": "Parallelle bakkers",
+  "description": "Multiversumfabriek: productie x2.",
+  "cost": 2.1e+16,
+  "condition": {
+   "type": "building_count",
+   "building": "multiversum",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "multiversum",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "multiversum_t2",
+  "name": "Universum waar koeken gratis zijn",
+  "description": "Multiversumfabriek: productie x2.",
+  "cost": 1.05e+17,
+  "condition": {
+   "type": "building_count",
+   "building": "multiversum",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "multiversum",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "multiversum_t3",
+  "name": "Multiversumfabriek Deluxe",
+  "description": "Multiversumfabriek: productie x2.",
+  "cost": 1.05e+18,
+  "condition": {
+   "type": "building_count",
+   "building": "multiversum",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "multiversum",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "multiversum_t4",
+  "name": "Multiversumfabriek Ultra",
+  "description": "Multiversumfabriek: productie x2.",
+  "cost": 1.05e+20,
+  "condition": {
+   "type": "building_count",
+   "building": "multiversum",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "multiversum",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "multiversum_t5",
+  "name": "Multiversumfabriek Absurd",
+  "description": "Multiversumfabriek: productie x2.",
+  "cost": 1.05e+22,
+  "condition": {
+   "type": "building_count",
+   "building": "multiversum",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "multiversum",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "multiversum_t6",
+  "name": "Multiversumfabriek Kosmisch",
+  "description": "Multiversumfabriek: productie x2.",
+  "cost": 1.05e+24,
+  "condition": {
+   "type": "building_count",
+   "building": "multiversum",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "multiversum",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "goddelijk_t1",
+  "name": "Heilig glazuur",
+  "description": "Goddelijke roze koekproductie: productie x2.",
+  "cost": 3.2e+17,
+  "condition": {
+   "type": "building_count",
+   "building": "goddelijk",
+   "count": 1
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "goddelijk",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "goddelijk_t2",
+  "name": "De Opperkoek ontwaakt",
+  "description": "Goddelijke roze koekproductie: productie x2.",
+  "cost": 1.6e+18,
+  "condition": {
+   "type": "building_count",
+   "building": "goddelijk",
+   "count": 5
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "goddelijk",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "goddelijk_t3",
+  "name": "Goddelijke roze koekproductie Deluxe",
+  "description": "Goddelijke roze koekproductie: productie x2.",
+  "cost": 1.6e+19,
+  "condition": {
+   "type": "building_count",
+   "building": "goddelijk",
+   "count": 25
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "goddelijk",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "goddelijk_t4",
+  "name": "Goddelijke roze koekproductie Ultra",
+  "description": "Goddelijke roze koekproductie: productie x2.",
+  "cost": 1.6e+21,
+  "condition": {
+   "type": "building_count",
+   "building": "goddelijk",
+   "count": 50
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "goddelijk",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "goddelijk_t5",
+  "name": "Goddelijke roze koekproductie Absurd",
+  "description": "Goddelijke roze koekproductie: productie x2.",
+  "cost": 1.6e+23,
+  "condition": {
+   "type": "building_count",
+   "building": "goddelijk",
+   "count": 100
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "goddelijk",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "goddelijk_t6",
+  "name": "Goddelijke roze koekproductie Kosmisch",
+  "description": "Goddelijke roze koekproductie: productie x2.",
+  "cost": 1.6e+25,
+  "condition": {
+   "type": "building_count",
+   "building": "goddelijk",
+   "count": 150
+  },
+  "effects": [
+   {
+    "type": "building_mult",
+    "target": "goddelijk",
+    "value": 2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "global_1",
+  "name": "Roze bril",
+  "description": "Alles ziet er roziger uit. Alle productie +10%.",
+  "cost": 1000000.0,
+  "condition": {
+   "type": "kps",
+   "value": 1000
+  },
+  "effects": [
+   {
+    "type": "global_mult",
+    "value": 1.1
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "global_2",
+  "name": "Bakkerslied",
+  "description": "Iedereen zingt mee. Alle productie +15%.",
+  "cost": 1000000000.0,
+  "condition": {
+   "type": "kps",
+   "value": 50000
+  },
+  "effects": [
+   {
+    "type": "global_mult",
+    "value": 1.15
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "global_3",
+  "name": "Roze koek-dag",
+  "description": "Officiële feestdag. Alle productie +20%.",
+  "cost": 1000000000000.0,
+  "condition": {
+   "type": "kps",
+   "value": 10000000.0
+  },
+  "effects": [
+   {
+    "type": "global_mult",
+    "value": 1.2
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "global_4",
+  "name": "Wereldwijde roze hype",
+  "description": "Iedereen wil er een. Alle productie +25%.",
+  "cost": 1000000000000000.0,
+  "condition": {
+   "type": "kps",
+   "value": 1000000000.0
+  },
+  "effects": [
+   {
+    "type": "global_mult",
+    "value": 1.25
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "offline_1",
+  "name": "Thermosfles koffie",
+  "description": "Je bakkers werken harder als je weg bent. Offline efficiëntie +25%.",
+  "cost": 50000.0,
+  "condition": {
+   "type": "total_baked",
+   "value": 10000.0
+  },
+  "effects": [
+   {
+    "type": "offline_eff_add",
+    "value": 0.25
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "offline_2",
+  "name": "Grote voorraadkast",
+  "description": "Offline limiet +3 uur.",
+  "cost": 5000000.0,
+  "condition": {
+   "type": "total_baked",
+   "value": 1000000.0
+  },
+  "effects": [
+   {
+    "type": "offline_cap_add",
+    "value": 10800
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "golden_1",
+  "name": "Glinsterende ogen",
+  "description": "Gouden roze koeken verschijnen 20% vaker.",
+  "cost": 500000.0,
+  "condition": {
+   "type": "golden_clicked",
+   "value": 3
+  },
+  "effects": [
+   {
+    "type": "golden_freq_mult",
+    "value": 1.25
+   }
+  ],
+  "secret": false
+ },
+ {
+  "id": "secret_ikbendekoek",
+  "name": "Ik ben de koek",
+  "description": "Geheim gevonden! Klikkracht x3.",
+  "cost": 0,
+  "condition": {
+   "type": "secret"
+  },
+  "effects": [
+   {
+    "type": "click_mult",
+    "value": 3
+   }
+  ],
+  "secret": true
+ }
+]

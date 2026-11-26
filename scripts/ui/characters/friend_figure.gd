@@ -19,7 +19,8 @@ var _t := 0.0
 var _anim_t := 0.0
 var _blink := 0.0
 var _next_blink := 2.0
-var _u := 1.0   # schaal: 1 eenheid bij 460 hoog
+var _u := 1.0
+var _p := 0.0   # schaal: 1 eenheid bij 460 hoog
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -65,7 +66,7 @@ func _draw() -> void:
 			smile = sin(p * PI)
 		"ability":
 			point = clampf(sin(p * PI) * 1.6, 0.0, 1.0)
-			if look.get("ability_pose", "point") == "cheers":
+			if look.get("ability_pose", "point") in ["cheers", "boss"]:
 				smile = point
 			surprise = point
 			jump = absf(sin(p * PI * 3.0)) * 8.0 * point
@@ -74,6 +75,8 @@ func _draw() -> void:
 	_ellipse(feet + Vector2(0, -2) * _u, Vector2(95, 14) * _u * (1.0 - jump / 150.0), Color(0.45, 0.1, 0.25, 0.18))
 	if has_dog:
 		_draw_dog(feet + Vector2(178, 0) * _u, p)
+	_p = p
+	smile = maxf(smile, float(look.get("smile_base", 0.0)))
 	_draw_person(feet, o, bob, hat_lift, point, smile, surprise)
 
 func _P(feet: Vector2, o: Vector2, x: float, y: float) -> Vector2:
@@ -98,8 +101,9 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 		_capsule(_P(feet, o, 26 * side, -70), _P(feet, o, 26 * side, -20), 19 * _u, c("pants"), true)
 		_ellipse_ol(_P(feet, o, 32 * side, -12), Vector2(26, 13) * _u, Color("#2B2220"))
 	# --- Armen (achter de romp)
-	var w := 1.18 if look.get("build", "") == "stocky" else 1.0
+	var w: float = {"stocky": 1.18, "slim": 0.92}.get(look.get("build", ""), 1.0)
 	var cheers: bool = look.get("ability_pose", "point") == "cheers"
+	var boss: bool = look.get("ability_pose", "point") == "boss"
 	var hand_l := _P(feet, o, -82 * w, -82 + breathe)
 	if cheers:
 		hand_l = hand_l.lerp(_P(feet, o, -112 * w, -228), point)
@@ -109,12 +113,23 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 		_P(feet, o, -62 * w, -160 - breathe), _P(feet, o, 62 * w, -160 - breathe),
 		_P(feet, o, 54 * w, -58), _P(feet, o, -54 * w, -58)])
 	_poly_ol(torso, shirt)
-	if look.get("shirt_style", "open") == "tee":
+	if look.get("shirt_style", "open") == "dress":
+		# Knoopsluiting met lichtblauwe knoopjes en een puntkraag
+		draw_line(_P(feet, o, 0, -150), _P(feet, o, 0, -62), shirt.darkened(0.1), 2.5 * _u, true)
+		for i in 4:
+			draw_circle(_P(feet, o, 0, -138 + i * 22), 3.4 * _u, Color("#7FB3E0"))
+		for side in [-1, 1]:
+			_poly_ol(PackedVector2Array([_P(feet, o, 4 * side, -162 - breathe), _P(feet, o, 30 * side, -168 - breathe), _P(feet, o, 22 * side, -138)]), shirt)
+	elif look.get("shirt_style", "open") == "tee":
 		draw_arc(_P(feet, o, 0, -166 - breathe), 26 * _u, 0.15, PI - 0.15, 16, shirt.darkened(0.18), 5 * _u, true)
 		for side in [-1, 1]:
 			draw_line(_P(feet, o, 40 * w * side, -150), _P(feet, o, 36 * w * side, -120), shirt.darkened(0.06), 3 * _u, true)
 	else:
 		_draw_open_shirt(feet, o, breathe, shirt)
+	if look.get("belt", false):
+		_poly_ol(PackedVector2Array([_P(feet, o, -55 * w, -72), _P(feet, o, 55 * w, -72), _P(feet, o, 54 * w, -58), _P(feet, o, -54 * w, -58)]), Color("#2A201C"))
+		var bk := _P(feet, o, 0, -65)
+		draw_rect(Rect2(bk - Vector2(10, 8) * _u, Vector2(20, 16) * _u), Color("#E0B84C"), false, 3.5 * _u)
 	# --- Kettingen
 	var necklaces: Array = look.get("necklaces", [])
 	if "crucifix" in necklaces:
@@ -128,10 +143,16 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 		_poly_ol(PackedVector2Array([st + Vector2(-8, -6) * _u, st + Vector2(7, -8) * _u, st + Vector2(9, 6) * _u, st + Vector2(-2, 12) * _u]), Color("#2F4A44"))
 	# --- Rechterarm (wijst bij vaardigheid)
 	var hand_r := _P(feet, o, 82 * w, -82 + breathe)
-	if not cheers:
+	if boss:
+		hand_r = hand_r.lerp(_P(feet, o, 112, -150), point)
+	elif not cheers:
 		hand_r = hand_r.lerp(_P(feet, o, 128, -205), point)
 	_arm(_P(feet, o, 58 * w, -150), hand_r, shirt, skin, true)
-	if point > 0.5 and not cheers:
+	if point > 0.5 and boss:
+		# Vingerpistool
+		_capsule(hand_r, hand_r + Vector2(22, -4) * _u, 5 * _u, skin, true)
+		_capsule(hand_r, hand_r + Vector2(4, -18) * _u, 5 * _u, skin, true)
+	elif point > 0.5 and not cheers:
 		_capsule(hand_r, hand_r + Vector2(14, -10) * _u, 5 * _u, skin, true)
 	# --- Nek en hoofd
 	_capsule(_P(feet, head_o, 0, -190), _P(feet, o, 0, -160), 20 * _u, skin.darkened(0.08), false)
@@ -161,20 +182,31 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 		for i in 15:
 			var a := PI * 0.92 - PI * 0.84 * i / 14.0
 			stub.append(_P(feet, head_o, cos(a) * 66, -238 + sin(a) * 60))
-		_poly(stub, Color(hair_c, 0.16))
+		var small: bool = look.get("goatee_size", "") == "small"
+		if not small:
+			_poly(stub, Color(hair_c, 0.16))
 		# Sikje
 		var gt := PackedVector2Array([_P(feet, head_o, -24, -200), _P(feet, head_o, 24, -200), _P(feet, head_o, 20, -176),
 			_P(feet, head_o, 8, -160), _P(feet, head_o, -8, -160), _P(feet, head_o, -20, -176)])
+		if small:
+			gt = PackedVector2Array([_P(feet, head_o, -11, -190), _P(feet, head_o, 11, -190), _P(feet, head_o, 8, -172), _P(feet, head_o, 0, -166), _P(feet, head_o, -8, -172)])
 		_poly_ol(gt, hair_c)
 		# Mond: zelfvoldane grijns
 		var m := _P(feet, head_o, 0, -205)
-		if smile > 0.05:
+		if smile > 0.4 and look.get("teeth_grin", false):
+			var grin := PackedVector2Array()
+			for i in 13:
+				var a := PI * i / 12.0
+				grin.append(m + Vector2(cos(a) * 22, sin(a) * 12 * smile - 2) * _u)
+			_poly_ol(grin, Color.WHITE)
+			draw_line(m + Vector2(-20, 3) * _u, m + Vector2(20, 3) * _u, Color("#D8D0D0"), 1.5 * _u)
+		elif smile > 0.05:
 			draw_arc(m, (14 + 6 * smile) * _u, 0.2, PI - 0.2, 16, Color("#7A2E3A"), 6 * _u, true)
 		else:
 			draw_line(m + Vector2(-14, 1) * _u, m + Vector2(14, -4) * _u, Color("#B5555F"), 5 * _u, true)
 		# Snor
 		for side in [-1, 1]:
-			_capsule(_P(feet, head_o, 4 * side, -217), _P(feet, head_o, 30 * side, -208 + smile * -4), 7 * _u, hair_c, false)
+			_capsule(_P(feet, head_o, 4 * side, -217), _P(feet, head_o, 30 * side, -208 + smile * -4), (3.5 if small else 7.0) * _u, hair_c, false)
 	# --- Baard (vol, licht overdreven, met grijze strepen)
 	if look.get("beard", "") == "full":
 		var bw := 1.0 + sin(_t * 2.4 + 0.6) * 0.015
@@ -202,7 +234,9 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 		for side in [-1, 1]:
 			_capsule(_P(feet, head_o, 6 * side, -218), _P(feet, head_o, 36 * side, -208 + smile * -6), 9 * _u, hair, false)
 	# --- Haar voor (achterover gekamd, licht wijkende haarlijn)
-	if not bald:
+	if look.get("hair_style", "") == "quiff":
+		_draw_quiff(feet, head_o, hair, sway)
+	elif not bald:
 		_draw_hair_front(feet, head_o, hair, sway)
 	# --- Neus
 	_ellipse_ol(_P(feet, head_o, 2, -234), Vector2(13, 16) * _u, skin.darkened(0.06))
@@ -211,7 +245,8 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 	# --- Ogen
 	for side in [-1, 1]:
 		var e := _P(feet, head_o, 31 * side, -262)
-		if _blink > 0.0:
+		var wink: bool = animation == "happy" and side == 1 and hat_lift > 20.0 and look.get("glasses", "") != ""
+		if _blink > 0.0 or wink:
 			draw_line(e + Vector2(-13, 0) * _u, e + Vector2(13, 0) * _u, OUTLINE, 4 * _u, true)
 		else:
 			var open := 1.0 + surprise * 0.35
@@ -242,6 +277,8 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 	_capsule(_P(feet, head_o, -50, -284 - lift), _P(feet, head_o, -14, -276 - lift + (5 if skeptical else 0)), 7.5 * _u, hair, false)
 	_capsule(_P(feet, head_o, 14, -282 - lift - (7 if skeptical else 0)), _P(feet, head_o, 50, -288 - lift - (3 if skeptical else 0)), 7.5 * _u, hair, false)
 	hair = hair_saved
+	if look.get("glasses", "") == "wayfarer":
+		_draw_wayfarers(feet, head_o, hat_lift, point)
 	# --- Hoofddeksel
 	if look.get("hat", "") == "straw_fedora":
 		_draw_hat(_P(feet, head_o, 0, -330 - hat_lift), hat_lift)
@@ -249,6 +286,27 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 		_draw_flat_cap(_P(feet, head_o, 0, -318 - hat_lift), hat_lift)
 	# --- Voorwerp in de linkerhand
 	_draw_prop(hand_l, point if cheers else 0.0)
+
+func _draw_quiff(feet: Vector2, head_o: Vector2, hair: Color, sway: float) -> void:
+	# Korte, gefadede zijkanten bij de slapen
+	for sd in [-1, 1]:
+		_ellipse(_P(feet, head_o, 74 * sd, -282), Vector2(12, 26) * _u, Color(hair, 0.75))
+	# De kuif: haarlijn hoog op het voorhoofd, volume dat omhoog en naar achter zwiept
+	var f := sway * 0.5
+	var pts: Array[Vector2] = [
+		Vector2(-80, -276), Vector2(-60, -300), Vector2(-30, -308), Vector2(0, -310), Vector2(30, -308),
+		Vector2(60, -300), Vector2(80, -278), Vector2(86, -310), Vector2(76 + f * 0.5, -340),
+		Vector2(56 + f, -360), Vector2(24 + f, -372), Vector2(-8 + f, -384), Vector2(-34 + f, -380),
+		Vector2(-48 + f * 0.5, -366), Vector2(-40, -356), Vector2(-62, -350), Vector2(-80, -326), Vector2(-86, -300)]
+	var q := PackedVector2Array()
+	for v in pts:
+		q.append(_P(feet, head_o, v.x, v.y))
+	_poly_ol(q, hair)
+	# Lokken en glans
+	for i in 4:
+		var x := -44 + i * 26
+		draw_arc(_P(feet, head_o, x + 30 + f * 0.5, -318), 44 * _u, PI * 1.15, PI * 1.55, 12, hair.lightened(0.25), 3 * _u, true)
+	draw_arc(_P(feet, head_o, -20 + f, -360), 14 * _u, PI * 0.9, PI * 1.9, 10, hair.lightened(0.3), 3 * _u, true)
 
 func _draw_hair_front(feet: Vector2, head_o: Vector2, hair: Color, sway: float) -> void:
 	var cap := PackedVector2Array()
@@ -278,7 +336,16 @@ func _draw_open_shirt(feet: Vector2, o: Vector2, breathe: float, shirt: Color) -
 		draw_circle(_P(feet, o, -30, -140 + i * 26), 3.2 * _u, shirt.darkened(0.35))
 
 func _arm(shoulder: Vector2, hand: Vector2, shirt: Color, skin: Color, right: bool) -> void:
-	if look.get("sleeves", "long") == "short":
+	if look.get("sleeves", "long") == "rolled":
+		var elbow := shoulder.lerp(hand, 0.55)
+		_capsule(elbow, hand, 14 * _u, skin, true)
+		_capsule(shoulder, elbow, 17 * _u, shirt, true)
+		_capsule(elbow - (elbow - shoulder).normalized() * 6 * _u, elbow, 18 * _u, shirt.darkened(0.04), true)
+		if not right and look.get("watch", false):
+			var wp := elbow.lerp(hand, 0.78)
+			_capsule(wp - (hand - elbow).normalized() * 4 * _u, wp + (hand - elbow).normalized() * 4 * _u, 15 * _u, Color("#C9CED6"), true)
+			draw_circle(wp, 7 * _u, Color("#2E3F57"))
+	elif look.get("sleeves", "long") == "short":
 		var elbow := shoulder.lerp(hand, 0.45)
 		_capsule(elbow, hand, 15 * _u, skin, true)
 		if right and look.get("tattoo", false):
@@ -318,6 +385,40 @@ func _draw_prop(hand: Vector2, raised: float) -> void:
 		var tp := foam + Vector2(-70, -40) * u
 		draw_string_outline(f, tp, "PROOST!", HORIZONTAL_ALIGNMENT_LEFT, -1, int(32 * u), int(8 * u), OUTLINE)
 		draw_string(f, tp, "PROOST!", HORIZONTAL_ALIGNMENT_LEFT, -1, int(32 * u), Palette.GOLD)
+
+func _draw_wayfarers(feet: Vector2, head_o: Vector2, lift: float, shine: float) -> void:
+	# Bij "blij" schuift de bril omhoog naar het voorhoofd (lift), anders zit hij op de ogen.
+	var up := clampf(lift / 46.0, 0.0, 1.0) * 40.0
+	var u := _u
+	var frame := Color("#151214")
+	for sd in [-1, 1]:
+		var e := _P(feet, head_o, 31 * sd, -262 - up)
+		var lens := PackedVector2Array([e + Vector2(-23, -15) * u, e + Vector2(23, -17) * u, e + Vector2(20, 14) * u, e + Vector2(-19, 13) * u])
+		_poly_ol(lens, frame)
+		draw_line(e + Vector2(-14, -9) * u, e + Vector2(-4, -11) * u, Color(1, 1, 1, 0.35), 3 * u, true)
+		# Glans die over de glazen schuift
+		if shine > 0.05:
+			var x := lerpf(-30.0, 30.0, fmod(_p * 2.5, 1.0))
+			draw_line(e + Vector2(x - 6, -14) * u, e + Vector2(x + 4, 12) * u, Color(1, 1, 1, 0.75), 5 * u, true)
+		draw_line(_P(feet, head_o, 52 * sd, -274 - up), _P(feet, head_o, 80 * sd, -262 - up * 0.5), frame, 4 * u, true)
+	draw_line(_P(feet, head_o, -8, -276 - up), _P(feet, head_o, 8, -276 - up), frame, 5 * u, true)
+	if shine > 0.6:
+		var f := Palette.title_font()
+		var tp := _P(feet, head_o, -150, -400)
+		draw_string_outline(f, tp, "BAASMODUS!", HORIZONTAL_ALIGNMENT_LEFT, -1, int(34 * u), int(8 * u), OUTLINE)
+		draw_string(f, tp, "BAASMODUS!", HORIZONTAL_ALIGNMENT_LEFT, -1, int(34 * u), Palette.GOLD)
+		for i in 5:
+			var a := _t * 3.0 + TAU * i / 5.0
+			var sp := _P(feet, head_o, cos(a) * 120, -260 + sin(a) * 120)
+			_sparkle(sp, (6 + 3 * sin(_t * 8 + i)) * u)
+
+func _sparkle(p: Vector2, r: float) -> void:
+	var pts := PackedVector2Array()
+	for i in 8:
+		var a := TAU * i / 8.0
+		var rr := r * (2.2 if i % 2 == 0 else 0.6)
+		pts.append(p + Vector2(cos(a), sin(a)) * rr)
+	draw_colored_polygon(pts, Color("#FFF3B0"))
 
 func _draw_flat_cap(center: Vector2, lift: float) -> void:
 	var u := _u

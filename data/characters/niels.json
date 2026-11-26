@@ -1,0 +1,23 @@
+{
+  "id": "niels",
+  "name": "Niels",
+  "nickname": "Niels de Koekbaas",
+  "role": "CEO, oprichter en officieel de coolste van het imperium",
+  "description": "Kuif perfect in de wax, zonnebril op, hemd strak gestreken en een horloge dat altijd precies op koektijd staat. Begon met één roze koek en droomt van een multiversum vol fondant.",
+  "intro": "Welkom bij mijn imperium. Ja, die zonnebril blijft op. Ook binnen.",
+  "unlock_cost": 100,
+  "unlock_condition": {"type": "building_count", "building": "kleine_bakker", "count": 1},
+  "passive_bonus": [
+    {"type": "global_mult", "value": 1.1},
+    {"type": "click_mult", "value": 1.5}
+  ],
+  "ability": {"type": "production_boost", "name": "Baasmodus", "description": "Niels zet de zonnebril recht: alle productie x5 en tikken x5 gedurende 20 seconden.", "value": 5, "duration": 20, "cooldown": 900},
+  "look": {
+    "skin": "#F2CFB3", "hair": "#4A3222", "hair_style": "quiff", "hair_length": "short", "beard": "goatee",
+    "goatee_size": "small", "brows": "relaxed", "brow_color": "#4A3222", "eyes": "#6B4A2E", "cheeks": false,
+    "build": "slim", "shirt": "#FBFBFD", "shirt_style": "dress", "sleeves": "rolled", "watch": true, "belt": true,
+    "pants": "#3B4150", "hat": "", "glasses": "wayfarer", "smile_base": 0.7, "teeth_grin": true,
+    "ability_pose": "boss", "companion": ""
+  },
+  "animation": "friend_figure"
+}

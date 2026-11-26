@@ -6,6 +6,7 @@ extends Node
 ##   production_boost  alle productie x value gedurende duration s (click_too: ook tikken)
 ##   click_frenzy      tikken x value gedurende duration s
 ##   golden_rain       value gouden roze koeken verschijnen
+##   instant_bake      meteen value minuten productie
 
 func _ready() -> void:
 	Economy.register_provider(self)
@@ -90,6 +91,9 @@ func use_ability(id: String) -> bool:
 			RandomEventSystem.add_buff("ability_" + id, label, dur, [{"type": "click_mult", "value": value}])
 		"golden_rain":
 			RandomEventSystem.spawn_golden()
+		"instant_bake":
+			# value = aantal minuten productie dat meteen binnenkomt
+			GameState.add_cookies(maxf(Economy.kps_permanent() * 60.0 * value, 100.0))
 		_:
 			push_warning("Onbekend vaardigheidstype: %s" % ab.get("type", ""))
 			return false
@@ -115,6 +119,7 @@ func bonus_text(id: String) -> String:
 			"crit_chance_add": parts.append("kritieke kans +%d%%" % roundi(v * 100))
 			"offline_eff_add": parts.append("offline +%d%%" % roundi(v * 100))
 			"golden_freq_mult": parts.append("gouden koeken +%d%%" % roundi((v - 1.0) * 100))
+			"offline_cap_add": parts.append("offline %s langer" % NumberFormat.duration(v))
 	return ", ".join(parts)
 
 func condition_text(id: String) -> String:

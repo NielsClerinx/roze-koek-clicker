@@ -25,6 +25,7 @@ func _ready() -> void:
 	_test_challenges()
 	_test_heaven()
 	_test_save_migration()
+	_test_instant_bake()
 	print("\n%d geslaagd, %d mislukt" % [_passes, _fails])
 	get_tree().quit(1 if _fails > 0 else 0)
 
@@ -346,3 +347,16 @@ func _test_save_migration() -> void:
 	check(GameState.achievements.size() == 1 and GameState.heaven.size() == 1, "onbekende ids genegeerd")
 	check(GameState.ribbons == 0, "negatieve lintjes geweigerd")
 	GameState.reset_all()
+
+func _test_instant_bake() -> void:
+	GameState.reset_all(); EventBus.game_reset.emit()
+	GameState.buildings["kleine_bakker"] = 10; Economy.mark_dirty()
+	GameState.characters["kattenkoningin"] = {"level": 1, "ready_at": 0.0}
+	EventBus.modifiers_changed.emit()
+	var k := Economy.kps_permanent()
+	var before := GameState.cookies
+	check(CharacterSystem.use_ability("kattenkoningin"), "Brompots buit gebruikt")
+	check(approx(GameState.cookies - before, maxf(k * 1200.0, 100.0)), "20 minuten productie")
+	check(approx(Economy.offline_cap_seconds(), 5.0 * 3600.0), "offline 2 uur langer")
+	RandomEventSystem.reset()
+	SaveManager.wipe()

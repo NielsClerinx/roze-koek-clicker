@@ -74,7 +74,9 @@ func _draw() -> void:
 	var o := Vector2(0, -jump + bob * 0.3)
 	# Schaduw
 	_ellipse(feet + Vector2(0, -2) * _u, Vector2(95, 14) * _u * (1.0 - jump / 150.0), Color(0.45, 0.1, 0.25, 0.18))
-	if has_dog:
+	if look.get("companion", "") == "cat":
+		_draw_cat(feet + Vector2(180, 0) * _u, p)
+	elif has_dog:
 		_draw_dog(feet + Vector2(178, 0) * _u, p)
 	_p = p
 	smile = maxf(smile, float(look.get("smile_base", 0.0)))
@@ -97,16 +99,24 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 			var bottom := _P(feet, o, (86 + sway * 0.5) * side + sway, -168)
 			_capsule(top, bottom, 30 * _u, hair, true)
 		_ellipse_ol(_P(feet, head_o, 0, -258), Vector2(94, 100) * _u, hair)
+	if look.get("hair_style", "") == "long_wavy":
+		_draw_wavy_back(feet, head_o, o, hair, sway)
 	# --- Benen en schoenen
+	var skirt: bool = look.get("skirt", "") != ""
 	for side in [-1, 1]:
-		_capsule(_P(feet, o, 26 * side, -70), _P(feet, o, 26 * side, -20), 19 * _u, c("pants"), true)
-		_ellipse_ol(_P(feet, o, 32 * side, -12), Vector2(26, 13) * _u, Color("#2B2220"))
+		if skirt:
+			_capsule(_P(feet, o, 22 * side, -70), _P(feet, o, 22 * side, -22), 13 * _u, c("skin"), true)
+			_ellipse_ol(_P(feet, o, 26 * side, -12), Vector2(20, 11) * _u, Color("#2B2220"))
+		else:
+			_capsule(_P(feet, o, 26 * side, -70), _P(feet, o, 26 * side, -20), 19 * _u, c("pants"), true)
+			_ellipse_ol(_P(feet, o, 32 * side, -12), Vector2(26, 13) * _u, Color("#2B2220"))
 	# --- Armen (achter de romp)
 	var w: float = {"stocky": 1.18, "slim": 0.92}.get(look.get("build", ""), 1.0)
 	var cheers: bool = look.get("ability_pose", "point") == "cheers"
 	var boss: bool = look.get("ability_pose", "point") == "boss"
 	var football: bool = look.get("ability_pose", "point") == "football"
 	var pockets: bool = look.get("idle_pose", "") == "pockets"
+	var kiss: bool = look.get("ability_pose", "point") == "kiss"
 	_hide_hands = pockets and point < 0.3
 	var hand_l := _P(feet, o, -82 * w, -82 + breathe)
 	if pockets:
@@ -138,6 +148,22 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 		# Gemêleerde stof
 		for i in 10:
 			draw_circle(_P(feet, o, -40 + (i * 37) % 80, -150 + (i * 23) % 80), 1.6 * _u, shirt.darkened(0.08))
+	elif look.get("shirt_style", "open") == "camisole":
+		# Topje met spaghettibandjes: blote schouders en een ronde hals
+		var neck := PackedVector2Array()
+		neck.append(_P(feet, o, -62 * w, -161 - breathe))
+		neck.append(_P(feet, o, 62 * w, -161 - breathe))
+		for i in 9:
+			var a := PI * i / 8.0
+			neck.append(_P(feet, o, cos(a) * 46 * w, -146 + sin(a) * 14 - breathe))
+		_poly(neck, skin)
+		for side in [-1, 1]:
+			draw_line(_P(feet, o, 30 * w * side, -162 - breathe), _P(feet, o, 36 * w * side, -140), shirt, 4 * _u, true)
+		var hem := PackedVector2Array()
+		for i in 9:
+			var a := PI * i / 8.0
+			hem.append(_P(feet, o, cos(a) * 46 * w, -146 + sin(a) * 14 - breathe))
+		draw_polyline(hem, OUTLINE, 3 * _u, true)
 	elif look.get("shirt_style", "open") == "tee":
 		draw_arc(_P(feet, o, 0, -166 - breathe), 26 * _u, 0.15, PI - 0.15, 16, shirt.darkened(0.18), 5 * _u, true)
 		for side in [-1, 1]:
@@ -148,6 +174,8 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 		_poly_ol(PackedVector2Array([_P(feet, o, -55 * w, -72), _P(feet, o, 55 * w, -72), _P(feet, o, 54 * w, -58), _P(feet, o, -54 * w, -58)]), Color("#2A201C"))
 		var bk := _P(feet, o, 0, -65)
 		draw_rect(Rect2(bk - Vector2(10, 8) * _u, Vector2(20, 16) * _u), Color("#E0B84C"), false, 3.5 * _u)
+	if skirt:
+		_draw_skirt(feet, o, w)
 	# --- Kettingen
 	var necklaces: Array = look.get("necklaces", [])
 	if "crucifix" in necklaces:
@@ -166,7 +194,15 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 	if football:
 		hand_r = hand_r.lerp(_P(feet, o, 100, -215), point)
 		hand_l = hand_l
-	if boss:
+	if kiss:
+		# Handkusje: hand naar de mond, daarna weggeblazen
+		var mouth_pos := _P(feet, head_o, 18, -200)
+		var k := clampf(_p * 2.2, 0.0, 1.0)
+		hand_r = hand_r.lerp(mouth_pos, point * (1.0 - smoothstep(0.55, 1.0, _p)))
+		if _p > 0.45:
+			hand_r = hand_r.lerp(_P(feet, o, 120, -210), smoothstep(0.45, 0.8, _p) * point)
+		k = k
+	elif boss:
 		hand_r = hand_r.lerp(_P(feet, o, 112, -150), point)
 	elif not cheers:
 		hand_r = hand_r.lerp(_P(feet, o, 128, -205), point)
@@ -175,7 +211,7 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 		# Vingerpistool
 		_capsule(hand_r, hand_r + Vector2(22, -4) * _u, 5 * _u, skin, true)
 		_capsule(hand_r, hand_r + Vector2(4, -18) * _u, 5 * _u, skin, true)
-	elif point > 0.5 and not cheers:
+	elif point > 0.5 and not cheers and not kiss:
 		_capsule(hand_r, hand_r + Vector2(14, -10) * _u, 5 * _u, skin, true)
 	# --- Nek en hoofd
 	_capsule(_P(feet, head_o, 0, -190), _P(feet, o, 0, -160), 20 * _u, skin.darkened(0.08), false)
@@ -274,15 +310,25 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 		# Snor
 		for side in [-1, 1]:
 			_capsule(_P(feet, head_o, 6 * side, -218), _P(feet, head_o, 36 * side, -208 + smile * -6), 9 * _u, hair, false)
+	if look.get("freckles", false):
+		for q in [Vector2(-46, -232), Vector2(-38, -224), Vector2(-52, -222), Vector2(40, -232), Vector2(48, -224), Vector2(34, -222), Vector2(-8, -246), Vector2(10, -246)]:
+			draw_circle(_P(feet, head_o, q.x, q.y), 1.9 * _u, Color("#C98A6A", 0.7))
+	if look.get("beard", "") == "":
+		_draw_mouth(_P(feet, head_o, 0, -199), smile, surprise, kiss and point > 0.1)
 	# --- Haar voor (achterover gekamd, licht wijkende haarlijn)
 	if look.get("hair_style", "") == "quiff":
 		_draw_quiff(feet, head_o, hair, sway)
+	elif look.get("hair_style", "") == "long_wavy":
+		_draw_wavy_front(feet, head_o, hair, sway)
 	elif not bald:
 		_draw_hair_front(feet, head_o, hair, sway)
 	# --- Neus
-	_ellipse_ol(_P(feet, head_o, 2, -234), Vector2(13, 16) * _u, skin.darkened(0.06))
+	var ns := float(look.get("nose_size", 1.0))
+	_ellipse_ol(_P(feet, head_o, 2, -234 + (1.0 - ns) * 8), Vector2(13, 16) * _u * ns, skin.darkened(0.06))
 	draw_circle(_P(feet, head_o, -2, -240), 3.5 * _u, Color(1, 1, 1, 0.35))
 	draw_arc(_P(feet, head_o, 2, -228), 8 * _u, 0.3, PI - 0.3, 10, skin.darkened(0.3), 2.5 * _u, true)
+	if look.get("nose_ring", false):
+		draw_arc(_P(feet, head_o, -7, -226), 4.5 * _u, -0.4, PI * 1.3, 12, Color("#E9D9A6"), 2.4 * _u, true)
 	# --- Ogen
 	for side in [-1, 1]:
 		var e := _P(feet, head_o, 31 * side, -262)
@@ -309,14 +355,22 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 			else:
 				# Zware oogleden: de intense blik
 				draw_arc(e, 15 * _u, PI * 1.08, PI * 1.92, 12, OUTLINE, 3.5 * _u, true)
+	if look.get("lashes", false):
+		for side in [-1, 1]:
+			var e2 := _P(feet, head_o, 31 * side, -262)
+			for i in 3:
+				var a: float = -PI * 0.5 + side * (0.45 + i * 0.28)
+				var base := e2 + Vector2(cos(a) * 15, sin(a) * 12) * _u
+				draw_line(base, base + Vector2(cos(a), sin(a) - 0.4).normalized() * 9 * _u, OUTLINE, 2.6 * _u, true)
 	# --- Wenkbrauwen: dik, één opgetrokken (sceptische blik)
 	var lift := surprise * 10.0 + smile * 6.0
 	var skeptical: bool = look.get("brows", "") == "skeptical"
 	var brow_col := c("brow_color", str(look.get("hair", "#3B2418")))
 	var hair_saved := hair
 	hair = brow_col
-	_capsule(_P(feet, head_o, -50, -284 - lift), _P(feet, head_o, -14, -276 - lift + (5 if skeptical else 0)), 7.5 * _u, hair, false)
-	_capsule(_P(feet, head_o, 14, -282 - lift - (7 if skeptical else 0)), _P(feet, head_o, 50, -288 - lift - (3 if skeptical else 0)), 7.5 * _u, hair, false)
+	var bt := float(look.get("brow_width", 7.5))
+	_capsule(_P(feet, head_o, -50, -284 - lift), _P(feet, head_o, -14, -276 - lift + (5 if skeptical else 0)), bt * _u, hair, false)
+	_capsule(_P(feet, head_o, 14, -282 - lift - (7 if skeptical else 0)), _P(feet, head_o, 50, -288 - lift - (3 if skeptical else 0)), bt * _u, hair, false)
 	hair = hair_saved
 	if look.get("glasses", "") == "wayfarer":
 		_draw_wayfarers(feet, head_o, hat_lift, point)
@@ -329,6 +383,8 @@ func _draw_person(feet: Vector2, o: Vector2, bob: float, hat_lift: float, point:
 		_draw_flat_cap(_P(feet, head_o, 0, -318 - hat_lift), hat_lift)
 	# --- Voorwerp in de linkerhand
 	_draw_prop(hand_l, point if (cheers or football) else 0.0)
+	if kiss and animation == "ability" and _p > 0.4:
+		_draw_kiss_hearts(hand_r, (_p - 0.4) / 0.6)
 
 func _draw_quiff(feet: Vector2, head_o: Vector2, hair: Color, sway: float) -> void:
 	# Korte, gefadede zijkanten bij de slapen
@@ -407,6 +463,14 @@ func _arm(shoulder: Vector2, hand: Vector2, shirt: Color, skin: Color, right: bo
 			var q := elbow.lerp(hand, 0.25 + i * 0.22)
 			draw_line(q + Vector2(-5, 9) * _u, q + Vector2(-1, 12) * _u, hair_col, 1.6 * _u, true)
 		_capsule(shoulder, elbow, 18 * _u, shirt, true)
+	elif look.get("sleeves", "long") == "none":
+		_capsule(shoulder, hand, 13 * _u, skin, true)
+		if not right and look.get("bracelet", false):
+			var bp := shoulder.lerp(hand, 0.86)
+			var d := (hand - shoulder).normalized()
+			_capsule(bp - d * 2 * _u, bp + d * 2 * _u, 14.5 * _u, Color("#C98A5A"), false)
+			for i in 5:
+				draw_circle(bp + d.orthogonal() * (-10 + i * 5) * _u, 2.2 * _u, Color("#E7B27E"))
 	else:
 		_capsule(shoulder, hand, 17 * _u, shirt, true)
 	if _hide_hands:
@@ -653,3 +717,178 @@ func _chain(a: Vector2, b: Vector2, low: Vector2, color: Color) -> void:
 		var t := i / 12.0
 		pts.append(a.lerp(low, t).lerp(low.lerp(b, t), t))
 	draw_polyline(pts, color, 2.4 * _u, true)
+
+# ------------------------------------------------------------------ vriendin met de kat
+
+func _draw_wavy_back(feet: Vector2, head_o: Vector2, o: Vector2, hair: Color, sway: float) -> void:
+	# Lange golvende lokken tot op de borst, achter het lichaam
+	_ellipse_ol(_P(feet, head_o, 0, -258), Vector2(96, 102) * _u, hair)
+	for pass_i in 2:
+		for side in [-1, 1]:
+			for i in 15:
+				var y := -262.0 + i * 10.0
+				var wave := sin(y / 16.0 + _t * 1.2) * 7.0
+				var x: float = (80.0 + wave + i * 1.2) * side + sway * 0.4 * i / 14.0
+				var base_o := head_o.lerp(o, i / 14.0)
+				var r := 30.0 - i * 0.6
+				if pass_i == 0:
+					draw_circle(_P(feet, base_o, x, y), (r + 3.5) * _u, OUTLINE)
+				else:
+					draw_circle(_P(feet, base_o, x, y), r * _u, hair)
+	for side in [-1, 1]:
+		for k in 3:
+			var pts := PackedVector2Array()
+			for i in 12:
+				var y := -250.0 + i * 11.0
+				pts.append(_P(feet, head_o.lerp(o, i / 11.0), (72.0 + k * 12 + sin(y / 16.0 + _t * 1.2) * 7.0) * side, y))
+			draw_polyline(pts, hair.lightened(0.25 if k != 1 else 0.12), 3 * _u, true)
+
+func _draw_wavy_front(feet: Vector2, head_o: Vector2, hair: Color, sway: float) -> void:
+	# Middenscheiding met gordijnlokken langs het gezicht
+	for side in [-1, 1]:
+		var pts := PackedVector2Array()
+		pts.append(_P(feet, head_o, 2 * side, -336))
+		for i in 11:
+			var a: float = -PI * 0.5 + side * PI * 0.5 * i / 10.0
+			pts.append(_P(feet, head_o, cos(a) * 88 * side * side, -256 + sin(a) * 82 - 6))
+		pts.append(_P(feet, head_o, 92 * side, -230))
+		pts.append(_P(feet, head_o, (90 + sway * 0.3) * side, -196))
+		pts.append(_P(feet, head_o, 74 * side, -206))
+		pts.append(_P(feet, head_o, 70 * side, -250))
+		pts.append(_P(feet, head_o, 52 * side, -294))
+		pts.append(_P(feet, head_o, 22 * side, -318))
+		_poly_ol(pts, hair)
+		for k in 2:
+			draw_arc(_P(feet, head_o, (40 + k * 18) * side, -270), (44 - k * 8) * _u, PI * (1.35 if side < 0 else 1.65) - 0.5, PI * (1.35 if side < 0 else 1.65) + 0.5, 10, hair.lightened(0.28), 3 * _u, true)
+	draw_line(_P(feet, head_o, 0, -320), _P(feet, head_o, 0, -340), hair.darkened(0.25), 3 * _u, true)
+
+func _draw_mouth(m: Vector2, smile: float, surprise: float, kissing: bool) -> void:
+	var lip := Color(str(look.get("lips", "#D9707E")))
+	if smile > 0.3 and not kissing:
+		var grin := PackedVector2Array()
+		for i in 13:
+			var a := PI * i / 12.0
+			grin.append(m + Vector2(cos(a) * 20, sin(a) * 13 * smile) * _u)
+		_poly_ol(grin, Color.WHITE)
+		draw_arc(m, 20 * _u, 0.1, PI - 0.1, 14, lip.darkened(0.2), 3 * _u, true)
+	elif look.get("mouth_style", "") == "pout" or kissing:
+		# Tuitlipjes (kusmondje)
+		var k := 1.25 if kissing else 1.0
+		_ellipse_ol(m + Vector2(2, -5) * _u, Vector2(11, 6) * _u * k, lip)
+		_ellipse_ol(m + Vector2(2, 4) * _u, Vector2(12, 7) * _u * k, lip.darkened(0.05))
+		_ellipse(m + Vector2(2, 0) * _u, Vector2(4, 2.2) * _u * k, lip.darkened(0.45))
+		draw_circle(m + Vector2(-3, -6) * _u, 2.2 * _u, Color(1, 1, 1, 0.45))
+	elif surprise > 0.3:
+		_ellipse(m + Vector2(0, 2) * _u, Vector2(8, 10 * surprise) * _u, Color("#7A2E3A"))
+	else:
+		draw_arc(m + Vector2(0, -8) * _u, 14 * _u, 0.5, PI - 0.5, 12, lip, 4 * _u, true)
+
+func _draw_skirt(feet: Vector2, o: Vector2, w: float) -> void:
+	var col := Color(str(look.get("skirt_color", "#1C1A22")))
+	var sk := PackedVector2Array([_P(feet, o, -56 * w, -88), _P(feet, o, 56 * w, -88), _P(feet, o, 52 * w, -42), _P(feet, o, -52 * w, -42)])
+	_poly_ol(sk, col)
+	if look.get("skirt", "") == "floral":
+		var flowers := [Vector2(-38, -78), Vector2(-14, -66), Vector2(12, -80), Vector2(34, -64), Vector2(-30, -52), Vector2(4, -50), Vector2(40, -50), Vector2(-46, -64), Vector2(22, -56)]
+		for i in flowers.size():
+			var f: Vector2 = flowers[i]
+			var center := _P(feet, o, f.x * w, f.y)
+			var petal := Color("#D9603F") if i % 3 != 1 else Color("#F0A06A")
+			draw_line(center + Vector2(-6, 4) * _u, center + Vector2(-11, 7) * _u, Color("#6F8F5A"), 2.5 * _u, true)
+			for j in 5:
+				var a := TAU * j / 5.0 + i
+				draw_circle(center + Vector2(cos(a), sin(a)) * 3.6 * _u, 2.8 * _u, petal)
+			draw_circle(center, 1.6 * _u, Color("#F3D27A"))
+
+func _draw_heart(p: Vector2, r: float, col: Color) -> void:
+	draw_circle(p + Vector2(-r * 0.5, 0), r * 0.55, col)
+	draw_circle(p + Vector2(r * 0.5, 0), r * 0.55, col)
+	draw_colored_polygon(PackedVector2Array([p + Vector2(-r * 1.02, r * 0.15), p + Vector2(r * 1.02, r * 0.15), p + Vector2(0, r * 1.25)]), col)
+
+func _draw_kiss_hearts(from: Vector2, k: float) -> void:
+	for i in 3:
+		var t := clampf(k * 1.3 - i * 0.18, 0.0, 1.0)
+		if t <= 0.0:
+			continue
+		var p := from + Vector2(30 + t * 90 + i * 8, -t * 70 + sin(t * 9.0 + i) * 10) * _u
+		var a := 1.0 - maxf(t - 0.75, 0.0) * 4.0
+		_draw_heart(p, (10 + i * 3) * _u, Color("#F0557F", a))
+	if k > 0.2:
+		var f := Palette.title_font()
+		var tp := from + Vector2(20, -80) * _u
+		draw_string_outline(f, tp, "MWAH!", HORIZONTAL_ALIGNMENT_LEFT, -1, int(30 * _u), int(8 * _u), OUTLINE)
+		draw_string(f, tp, "MWAH!", HORIZONTAL_ALIGNMENT_LEFT, -1, int(30 * _u), Color("#FF8FB1"))
+
+func _draw_cat(pos: Vector2, p: float) -> void:
+	# Mollige siamees (lynx point): crème vacht, blauwgrijze punten, blauwe ogen en een
+	# blik alsof hij nergens zin in heeft.
+	var u := _u
+	var cream := Color("#EFDDC6")
+	var point := Color("#8E8C98")
+	var point_dark := Color("#6F6D7A")
+	var hop := 0.0
+	var meow := false
+	if animation == "ability":
+		hop = absf(sin(p * PI * 2.0)) * 20.0
+		meow = p > 0.2 and p < 0.85
+	elif animation == "happy":
+		hop = absf(sin(p * PI * 2.0)) * 10.0
+	var o := pos + Vector2(0, -hop) * u
+	# Staart: zwiept langzaam, met ringen
+	var swish := sin(_t * (5.0 if animation != "idle" else 1.6)) * 0.5
+	var tail := PackedVector2Array()
+	for i in 10:
+		var t := i / 9.0
+		tail.append(o + Vector2(34 + t * 30, -14 - t * 50 - sin(t * 3.0 + swish) * 14) * u)
+	draw_polyline(tail, OUTLINE, 19 * u, true)
+	draw_polyline(tail, point, 12 * u, true)
+	for i in [3, 5, 7]:
+		draw_circle(tail[i], 5.5 * u, point_dark)
+	# Lijf (zittend, rond)
+	_ellipse_ol(o + Vector2(0, -46) * u, Vector2(46, 42) * u, cream)
+	_ellipse(o + Vector2(8, -60) * u, Vector2(26, 20) * u, cream.lightened(0.25))
+	# Voorpootjes (grijze sokjes)
+	for x in [-16, 14]:
+		_ellipse_ol(o + Vector2(x, -10) * u, Vector2(12, 9) * u, point.lightened(0.25))
+	# Kop
+	var h := o + Vector2(-4, -110) * u
+	var tilt := sin(_t * 0.9) * 0.05 + (0.12 if meow else 0.0)
+	draw_set_transform(h, tilt, Vector2.ONE)
+	for side in [-1, 1]:
+		_poly_ol(PackedVector2Array([Vector2(20 * side, -18) * u, Vector2(36 * side, -54) * u, Vector2(4 * side, -30) * u]), point)
+		draw_colored_polygon(PackedVector2Array([Vector2(20 * side, -22) * u, Vector2(32 * side, -46) * u, Vector2(10 * side, -30) * u]), Color("#D9A3A8"))
+	_ellipse_ol(Vector2.ZERO, Vector2(40, 33) * u, cream)
+	# Grijs masker rond de snuit en tabbystreepjes op het voorhoofd
+	_ellipse(Vector2(0, 8) * u, Vector2(24, 20) * u, point)
+	_ellipse(Vector2(0, -6) * u, Vector2(10, 16) * u, point.lightened(0.1))
+	for i in 3:
+		draw_line(Vector2(-8 + i * 8, -30) * u, Vector2(-6 + i * 6, -20) * u, point_dark, 2.5 * u, true)
+	# Ogen: blauw, halfdicht (chagrijnig)
+	for side in [-1, 1]:
+		var e := Vector2(16 * side, -4) * u
+		if _blink > 0.0 or animation == "happy":
+			draw_arc(e + Vector2(0, -3) * u, 8 * u, 0.3, PI - 0.3, 10, OUTLINE, 2.5 * u, true)
+		else:
+			_ellipse_ol(e, Vector2(9, 7) * u, Color("#A9C4D6"))
+			_ellipse(e, Vector2(2.2, 6) * u, Color("#1C1012"))
+			# Zwaar ooglid
+			draw_colored_polygon(PackedVector2Array([e + Vector2(-12, -9) * u, e + Vector2(12, -9) * u, e + Vector2(12, -1) * u, e + Vector2(-12, -1 - side * 2) * u]), point)
+			draw_line(e + Vector2(-11, -1 - side * 2) * u, e + Vector2(11, -1) * u, OUTLINE, 2.8 * u, true)
+	# Neus en mond
+	draw_colored_polygon(PackedVector2Array([Vector2(-5, 10) * u, Vector2(5, 10) * u, Vector2(0, 16) * u]), Color("#5D4B55"))
+	if meow:
+		_ellipse_ol(Vector2(0, 24) * u, Vector2(9, 8) * u, Color("#5A1E26"))
+		for side in [-1, 1]:
+			draw_colored_polygon(PackedVector2Array([Vector2(5 * side, 17) * u, Vector2(2 * side, 17) * u, Vector2(3.5 * side, 23) * u]), Color.WHITE)
+	else:
+		draw_arc(Vector2(-4, 17) * u, 4 * u, 0.2, PI - 0.4, 8, OUTLINE, 2 * u, true)
+		draw_arc(Vector2(4, 17) * u, 4 * u, 0.4, PI - 0.2, 8, OUTLINE, 2 * u, true)
+	# Snorharen
+	for side in [-1, 1]:
+		for i in 3:
+			draw_line(Vector2(14 * side, 12 + i * 4) * u, Vector2(46 * side, 6 + i * 7) * u, Color(1, 1, 1, 0.85), 1.6 * u, true)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if meow:
+		var f := Palette.title_font()
+		var tp := h + Vector2(-60, -64) * u
+		draw_string_outline(f, tp, "MIAUW!", HORIZONTAL_ALIGNMENT_LEFT, -1, int(32 * u), int(8 * u), OUTLINE)
+		draw_string(f, tp, "MIAUW!", HORIZONTAL_ALIGNMENT_LEFT, -1, int(32 * u), Palette.GOLD)

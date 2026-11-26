@@ -5,6 +5,7 @@ extends Control
 const CookieView := preload("res://scripts/ui/cookie_view.gd")
 const ShopRow := preload("res://scripts/ui/shop_row.gd")
 const GoldenCookie := preload("res://scripts/ui/golden_cookie.gd")
+const FriendsUI := preload("res://scripts/ui/friends_ui.gd")
 
 const BUY_AMOUNTS := [1, 10, 100, 0]   # 0 = Max
 const UPGRADE_COLORS := {
@@ -21,6 +22,7 @@ var _cookie: CookieView
 var _fx_layer: Control
 var _toast: PanelContainer
 var _toast_label: Label
+var _toast_tween: Tween
 var _tab_buttons: Array[Button] = []
 var _pages: Array[Control] = []
 var _buy_buttons: Array[Button] = []
@@ -39,6 +41,8 @@ var _refresh_t := 0.0
 var _floaters := 0
 var _name_taps := 0
 var _rng := RandomNumberGenerator.new()
+var _friends: FriendsUI
+var _friend_layer: Control
 
 func _ready() -> void:
 	_rng.randomize()
@@ -126,7 +130,19 @@ func _build_layout() -> void:
 	root.add_child(_play)
 	_cookie = CookieView.new()
 	_cookie.tapped.connect(_on_cookie_tapped)
+	# Vrienden: achterste rij achter de koek, voorste rij ervoor
+	var back_layer := Control.new()
+	back_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	back_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_play.add_child(back_layer)
 	_play.add_child(_cookie)
+	_friend_layer = Control.new()
+	_friend_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_friend_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_play.add_child(_friend_layer)
+	_friends = FriendsUI.new()
+	add_child(_friends)
+	_friends.setup(self, _friend_layer, back_layer)
 
 	# --- Paneel
 	var sheet := PanelContainer.new()
@@ -148,13 +164,15 @@ func _build_layout() -> void:
 	var tabs := HBoxContainer.new()
 	tabs.add_theme_constant_override("separation", 8)
 	sv.add_child(tabs)
-	for t in ["Gebouwen", "Upgrades", "Meer"]:
+	for t in ["Gebouwen", "Upgrades", "Vrienden", "Meer"]:
 		var b := Button.new()
 		b.text = t
 		b.toggle_mode = true
 		b.focus_mode = Control.FOCUS_NONE
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.custom_minimum_size = Vector2(0, 56)
+		b.add_theme_font_size_override("font_size", 20)
+		b.clip_text = true
 		b.add_theme_stylebox_override("pressed", Palette.box(Palette.PINK_DEEP, 22))
 		b.add_theme_stylebox_override("hover_pressed", Palette.box(Palette.PINK_DEEP, 22))
 		b.add_theme_color_override("font_pressed_color", Palette.WHITE)
@@ -167,7 +185,7 @@ func _build_layout() -> void:
 	var pages := Control.new()
 	pages.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	sv.add_child(pages)
-	_pages = [_build_buildings_page(), _build_upgrades_page(), _build_more_page()]
+	_pages = [_build_buildings_page(), _build_upgrades_page(), _friends.build_page(), _build_more_page()]
 	for p in _pages:
 		p.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		pages.add_child(p)
@@ -480,13 +498,19 @@ func _on_reset() -> void:
 
 func show_toast(msg: String) -> void:
 	_toast_label.text = msg
-	_toast.reset_size()
 	var w := minf(get_viewport_rect().size.x - 40, 600)
+	_toast_label.custom_minimum_size = Vector2(w - 44, 0)
 	_toast.custom_minimum_size = Vector2(w, 0)
 	_toast.size = Vector2(w, 0)
+	_toast.reset_size()
 	_toast.position = Vector2((get_viewport_rect().size.x - w) * 0.5, _play.get_global_rect().position.y + 6)
+	if _toast_tween:
+		_toast_tween.kill()
 	var tw := _toast.create_tween()
+	_toast_tween = tw
 	tw.tween_property(_toast, "modulate:a", 1.0, 0.15)
+	# De tekstomloop wordt pas na een frame berekend: daarna de hoogte opnieuw bepalen.
+	tw.parallel().tween_callback(_toast.reset_size).set_delay(0.05)
 	tw.tween_interval(2.4)
 	tw.tween_property(_toast, "modulate:a", 0.0, 0.4)
 
@@ -503,7 +527,7 @@ func _refresh_top() -> void:
 	_kps_label.text = "roze koeken · %s per seconde" % NumberFormat.format(Economy.kps(), true)
 
 func _refresh(force: bool) -> void:
-	if _pages.size() < 3:
+	if _pages.size() < 4:
 		return   # UI wordt nog opgebouwd
 	_refresh_top()
 	var name_btn: Button = get_meta("name_btn")
@@ -517,7 +541,10 @@ func _refresh(force: bool) -> void:
 		_refresh_buildings()
 	if _pages[1].visible or force:
 		_refresh_upgrades()
-	if _pages[2].visible:
+	_friends.refresh_field()
+	if _pages[2].visible or force:
+		_friends.refresh_page()
+	if _pages[3].visible:
 		_refresh_more()
 
 func _refresh_buildings() -> void:

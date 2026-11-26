@@ -12,3 +12,5 @@ signal toast(message: String)
 signal offline_earned(amount: float, seconds: float)
 signal game_loaded
 signal game_reset
+signal character_recruited(id: String)
+signal ability_used(id: String)

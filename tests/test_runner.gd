@@ -19,6 +19,7 @@ func _ready() -> void:
 	_test_corrupt_save()
 	_test_prestige()
 	_test_data_integrity()
+	_test_characters()
 	print("\n%d geslaagd, %d mislukt" % [_passes, _fails])
 	get_tree().quit(1 if _fails > 0 else 0)
 
@@ -154,3 +155,38 @@ func _test_data_integrity() -> void:
 	for u in GameData.upgrades:
 		if u.condition.get("type") == "building_count":
 			check(GameData.building_by_id.has(u.condition.building), "upgrade verwijst naar bestaand gebouw: " + u.id)
+
+func _test_characters() -> void:
+	GameState.reset_all(); EventBus.game_reset.emit()
+	check(GameData.characters.size() >= 4, "minstens 4 vrienden (%d)" % GameData.characters.size())
+	for c in GameData.characters:
+		check(c.has("look") and c.has("ability") and c.has("passive_bonus"), "vriend compleet: " + c.id)
+	# Timothy: vergrendeld tot 1 bakkerij
+	GameState.cookies = 1e6
+	check(not CharacterSystem.recruit("timothy"), "vergrendelde vriend niet te rekruteren")
+	GameState.buildings["bakkerij"] = 1
+	Economy.mark_dirty()
+	var before := Economy.kps()
+	check(CharacterSystem.recruit("timothy"), "timothy rekruteren")
+	check(approx(Economy.kps(), before * 1.5), "bakkerij-bonus x1,5")
+	check(approx(Economy.crit_chance(), 0.05), "kritieke kans +2%%")
+	check(not CharacterSystem.recruit("timothy"), "niet dubbel rekruteren")
+	# Vaardigheid: productie x3, daarna afkoeltijd
+	var k := Economy.kps()
+	check(CharacterSystem.use_ability("timothy"), "vaardigheid gebruiken")
+	check(approx(Economy.kps(), k * 3.0), "proost x3")
+	check(approx(Economy.kps_permanent(), k), "boost telt niet mee offline")
+	check(not CharacterSystem.use_ability("timothy"), "afkoeltijd actief")
+	check(CharacterSystem.cooldown_left("timothy") > 590.0, "afkoeltijd ~600 s")
+	# Opslaan en laden bewaart vrienden en afkoeltijd
+	SaveManager.save_game()
+	GameState.reset_all()
+	SaveManager.load_game()
+	check(CharacterSystem.is_recruited("timothy"), "vriend geladen")
+	check(CharacterSystem.cooldown_left("timothy") > 590.0, "afkoeltijd geladen")
+	# Vrienden blijven na herglazuren
+	GameState.add_cookies(1e12)
+	PrestigeSystem.prestige()
+	check(CharacterSystem.is_recruited("timothy"), "vriend blijft na herglazuren")
+	RandomEventSystem.reset()
+	SaveManager.wipe()

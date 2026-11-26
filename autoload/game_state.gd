@@ -97,7 +97,9 @@ func from_dict(d: Dictionary) -> void:
 				upgrades[id] = true
 	var c = d.get("characters", {})
 	if c is Dictionary:
-		characters = c
+		for id in c.keys():
+			if GameData.character_by_id.has(id) and c[id] is Dictionary:
+				characters[id] = {"level": maxi(int(_num(c[id].get("level", 1))), 1), "ready_at": _num(c[id].get("ready_at", 0.0))}
 	crystals = int(_num(d.get("crystals")))
 	crystals_spent = int(_num(d.get("crystals_spent")))
 	prestiges = int(_num(d.get("prestiges")))

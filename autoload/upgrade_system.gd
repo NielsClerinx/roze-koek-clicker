@@ -13,7 +13,10 @@ func get_modifiers() -> Array:
 	return out
 
 func is_condition_met(u: Dictionary) -> bool:
-	var c: Dictionary = u.condition
+	return check_condition(u.condition)
+
+## Gedeelde voorwaarde-check (ook gebruikt door vrienden).
+func check_condition(c: Dictionary) -> bool:
 	match c.get("type", ""):
 		"building_count": return GameState.count(c.building) >= int(c.count)
 		"total_baked": return GameState.baked_run >= float(c.value)

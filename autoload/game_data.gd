@@ -7,6 +7,11 @@ var upgrades: Array = []
 var upgrade_by_id: Dictionary = {}
 var characters: Array = []
 var character_by_id: Dictionary = {}
+var achievements: Array = []
+var achievement_by_id: Dictionary = {}
+var challenges: Dictionary = {}      # {reward, streak_days, streak_reward, boost, challenges: [...]}
+var heaven: Array = []               # Roze Hemel: permanente upgrades voor kristallen
+var heaven_by_id: Dictionary = {}
 
 func _ready() -> void:
 	buildings = _load_json("res://data/buildings.json", [])
@@ -19,6 +24,13 @@ func _ready() -> void:
 			continue
 		upgrade_by_id[u.id] = u
 	_load_characters()
+	achievements = _load_json("res://data/achievements.json", [])
+	for a in achievements:
+		achievement_by_id[a.id] = a
+	challenges = _load_json("res://data/challenges.json", {"challenges": []})
+	heaven = _load_json("res://data/heaven.json", [])
+	for h in heaven:
+		heaven_by_id[h.id] = h
 
 func _load_characters() -> void:
 	var dir := DirAccess.open("res://data/characters")

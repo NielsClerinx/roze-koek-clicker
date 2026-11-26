@@ -5,7 +5,6 @@ extends Node
 const GOLDEN_MIN := 90.0
 const GOLDEN_MAX := 210.0
 const GOLDEN_FIRST := 75.0
-const GOLDEN_LIFETIME := 12.0
 
 var _rng := RandomNumberGenerator.new()
 var _next_golden := GOLDEN_FIRST
@@ -47,7 +46,7 @@ func _process(delta: float) -> void:
 
 func spawn_golden() -> void:
 	golden_active = true
-	_golden_left = GOLDEN_LIFETIME
+	_golden_left = Economy.golden_lifetime()
 	_next_golden = _rng.randf_range(GOLDEN_MIN, GOLDEN_MAX)
 	EventBus.golden_spawned.emit()
 

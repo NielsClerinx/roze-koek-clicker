@@ -14,7 +14,9 @@ func click(screen_pos: Vector2 = Vector2.ZERO) -> Dictionary:
 	if crit:
 		amount *= Economy.crit_mult()
 		GameState.crits += 1
+		GameState.crits_total += 1
 	GameState.clicks += 1
+	GameState.clicks_total += 1
 	GameState.add_cookies(amount)
 	EventBus.cookies_clicked.emit(amount, crit, screen_pos)
 	_track_speed()
@@ -27,3 +29,4 @@ func _track_speed() -> void:
 		_recent.pop_front()
 	if _recent.size() == 100:
 		EventBus.toast.emit("Rustig aan! De koek heeft ook gevoelens.")
+		GameState.flags["speed_clicker"] = true

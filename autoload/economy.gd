@@ -4,7 +4,8 @@ extends Node
 ##
 ## Een modifier is een Dictionary: {"type": String, "value": float, "target": String (optioneel)}
 ## Types: building_mult, global_mult, click_mult, click_add, click_kps_pct, crit_chance_add,
-##        crit_mult_set, offline_eff_add, offline_cap_add, golden_freq_mult
+##        crit_mult_set, offline_eff_add, offline_cap_add, golden_freq_mult,
+##        golden_duration_mult, ability_cd_mult
 
 const COST_GROWTH := 1.15
 const MILESTONES: Array[int] = [25, 50, 100, 150, 200, 250, 300, 400, 500]
@@ -17,6 +18,8 @@ const BASE_OFFLINE_EFF := 0.25
 const MAX_OFFLINE_EFF := 1.0
 const BASE_OFFLINE_CAP := 3.0 * 3600.0
 const MAX_OFFLINE_CAP := 24.0 * 3600.0
+const BASE_GOLDEN_LIFETIME := 12.0
+const MIN_ABILITY_CD_MULT := 0.25
 
 var _providers: Array = []          # [{node, temporary}]
 var _dirty := true
@@ -32,6 +35,8 @@ var _crit_mult := BASE_CRIT_MULT
 var _offline_eff := BASE_OFFLINE_EFF
 var _offline_cap := BASE_OFFLINE_CAP
 var _golden_freq := 1.0
+var _golden_duration := 1.0
+var _ability_cd := 1.0
 var _temp_prod_mult := 1.0
 var _temp_click_mult := 1.0
 var _kps_permanent := 0.0
@@ -68,6 +73,8 @@ func _recalculate() -> void:
 	var off_eff_add := 0.0
 	var off_cap_add := 0.0
 	_golden_freq = 1.0
+	_golden_duration = 1.0
+	_ability_cd = 1.0
 	_temp_prod_mult = 1.0
 	_temp_click_mult = 1.0
 	for p in _providers:
@@ -92,8 +99,11 @@ func _recalculate() -> void:
 				"offline_eff_add": off_eff_add += v
 				"offline_cap_add": off_cap_add += v
 				"golden_freq_mult": _golden_freq *= v
+				"golden_duration_mult": _golden_duration *= v
+				"ability_cd_mult": _ability_cd *= v
 				_:
 					push_warning("Onbekend modifier-type: %s" % m.get("type", ""))
+	_ability_cd = maxf(_ability_cd, MIN_ABILITY_CD_MULT)
 	_crit_chance = minf(BASE_CRIT_CHANCE + crit_add, MAX_CRIT_CHANCE)
 	_offline_eff = minf(BASE_OFFLINE_EFF + off_eff_add, MAX_OFFLINE_EFF)
 	_offline_cap = minf(BASE_OFFLINE_CAP + off_cap_add, MAX_OFFLINE_CAP)
@@ -202,10 +212,21 @@ func golden_frequency_mult() -> float:
 	_ensure()
 	return _golden_freq
 
+func golden_lifetime() -> float:
+	_ensure()
+	return BASE_GOLDEN_LIFETIME * _golden_duration
+
+# ---------- Vrienden ----------
+
+func ability_cooldown(base_seconds: float) -> float:
+	_ensure()
+	return base_seconds * _ability_cd
+
 # ---------- Prestige ----------
 
 func crystals_total_for(lifetime_baked: float) -> int:
-	return int(floor(pow(maxf(lifetime_baked, 0.0) / PRESTIGE_DIVISOR, 1.0 / 3.0)))
+	# Kleine marge: pow(64, 1/3) is in drijvende komma 3,9999...
+	return int(floor(pow(maxf(lifetime_baked, 0.0) / PRESTIGE_DIVISOR, 1.0 / 3.0) + 1e-9))
 
 func crystals_pending() -> int:
 	return maxi(crystals_total_for(GameState.baked_lifetime) - GameState.crystals, 0)

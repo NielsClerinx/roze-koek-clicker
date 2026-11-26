@@ -1,7 +1,7 @@
 extends Node
 ## De volledige (op te slaan) toestand van een spel. Bevat geen formules.
 
-const SAVE_VERSION := 1
+const SAVE_VERSION := 2
 
 var cookies: float = 0.0
 var baked_run: float = 0.0          # gebakken in deze run (sinds herglazuren)
@@ -12,6 +12,13 @@ var golden_clicked: int = 0
 var buildings: Dictionary = {}      # id -> aantal
 var upgrades: Dictionary = {}       # id -> true
 var characters: Dictionary = {}     # id -> {"level": int}
+var clicks_total: int = 0          # alle runs samen
+var crits_total: int = 0
+var achievements: Dictionary = {}   # id -> unix-tijd van behalen
+var flags: Dictionary = {}          # geheime acties en mijlpalen (id -> true)
+var daily: Dictionary = {}          # dagelijkse uitdagingen (zie ChallengeSystem)
+var ribbons: int = 0                # Roze Lintjes
+var heaven: Dictionary = {}         # Roze Hemel: id -> true
 var crystals: int = 0
 var crystals_spent: int = 0
 var prestiges: int = 0
@@ -31,6 +38,13 @@ func reset_all() -> void:
 	crystals_spent = 0
 	prestiges = 0
 	characters = {}
+	clicks_total = 0
+	crits_total = 0
+	achievements = {}
+	flags = {}
+	daily = {}
+	ribbons = 0
+	heaven = {}
 	golden_clicked = 0
 	play_seconds = 0.0
 	created_unix = Time.get_unix_time_from_system()
@@ -71,6 +85,9 @@ func to_dict() -> Dictionary:
 		"cookies": cookies, "baked_run": baked_run, "baked_lifetime": baked_lifetime,
 		"clicks": clicks, "crits": crits, "golden_clicked": golden_clicked,
 		"buildings": buildings, "upgrades": upgrades.keys(), "characters": characters,
+		"clicks_total": clicks_total, "crits_total": crits_total,
+		"achievements": achievements, "flags": flags.keys(), "daily": daily, "ribbons": ribbons,
+		"heaven": heaven.keys(),
 		"crystals": crystals, "crystals_spent": crystals_spent, "prestiges": prestiges,
 		"play_seconds": play_seconds, "last_active_unix": last_active_unix,
 		"created_unix": created_unix, "bakery_name": bakery_name, "settings": settings,
@@ -100,6 +117,26 @@ func from_dict(d: Dictionary) -> void:
 		for id in c.keys():
 			if GameData.character_by_id.has(id) and c[id] is Dictionary:
 				characters[id] = {"level": maxi(int(_num(c[id].get("level", 1))), 1), "ready_at": _num(c[id].get("ready_at", 0.0))}
+	clicks_total = maxi(int(_num(d.get("clicks_total"))), clicks)
+	crits_total = maxi(int(_num(d.get("crits_total"))), crits)
+	var a = d.get("achievements", {})
+	if a is Dictionary:
+		for id in a.keys():
+			if GameData.achievement_by_id.has(id):
+				achievements[id] = _num(a[id])
+	var fl = d.get("flags", [])
+	if fl is Array:
+		for f in fl:
+			flags[str(f)] = true
+	var dy = d.get("daily", {})
+	if dy is Dictionary:
+		daily = dy
+	ribbons = maxi(int(_num(d.get("ribbons"))), 0)
+	var h = d.get("heaven", [])
+	if h is Array:
+		for id in h:
+			if GameData.heaven_by_id.has(id):
+				heaven[id] = true
 	crystals = int(_num(d.get("crystals")))
 	crystals_spent = int(_num(d.get("crystals_spent")))
 	prestiges = int(_num(d.get("prestiges")))
@@ -112,8 +149,16 @@ func from_dict(d: Dictionary) -> void:
 		settings.merge(s, true)
 
 func _migrate(d: Dictionary) -> Dictionary:
-	# Toekomstige save-versies migreren hier stap voor stap.
+	# Save-versies stap voor stap migreren.
+	if int(_num(d.get("version", 1))) < 2:
+		# v1 kende geen totalen over alle runs: neem de huidige run als ondergrens.
+		d["clicks_total"] = d.get("clicks", 0)
+		d["crits_total"] = d.get("crits", 0)
+		d["version"] = 2
 	return d
+
+func crystals_available() -> int:
+	return maxi(crystals - crystals_spent, 0)
 
 static func _num(v) -> float:
 	if v is float or v is int:

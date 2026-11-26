@@ -13,6 +13,7 @@ func prestige() -> int:
 	GameState.crystals += gained
 	GameState.prestiges += 1
 	GameState.reset_run()
+	HeavenSystem.apply_start_bonus()
 	EventBus.game_reset.emit()
 	SaveManager.save_game()
 	return gained

@@ -93,7 +93,7 @@ func use_ability(id: String) -> bool:
 		_:
 			push_warning("Onbekend vaardigheidstype: %s" % ab.get("type", ""))
 			return false
-	GameState.characters[id]["ready_at"] = Time.get_unix_time_from_system() + float(ab.get("cooldown", 600))
+	GameState.characters[id]["ready_at"] = Time.get_unix_time_from_system() + Economy.ability_cooldown(float(ab.get("cooldown", 600)))
 	EventBus.ability_used.emit(id)
 	return true
 

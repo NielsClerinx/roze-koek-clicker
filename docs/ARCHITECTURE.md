@@ -19,7 +19,10 @@
 | GameState | Op te slaan toestand, `to_dict`/`from_dict` met validatie en migratie |
 | Economy | Alle formules, modifier-aggregatie |
 | UpgradeSystem | Voorwaarden, aankoop, geheime upgrades → modifiers |
-| CharacterSystem | Vrienden rekruteren, bonussen per level → modifiers (UI in v0.2) |
+| CharacterSystem | Vrienden rekruteren, bonussen per level, vaardigheden → modifiers |
+| AchievementSystem | Prestaties uit `data/achievements.json`, +1% productie per stuk → modifier |
+| ChallengeSystem | Dagelijkse uitdagingen uit `data/challenges.json`, Roze Lintjes, reeks, lintjesboost |
+| HeavenSystem | Roze Hemel uit `data/heaven.json`: kristallen uitgeven, startgebouwen na herglazuren → modifiers |
 | RandomEventSystem | Gouden koek, tijdelijke buffs → tijdelijke modifiers |
 | ProductionSystem | Productie per frame, gebouwen kopen |
 | ClickSystem | Tikken, kritieke klikken |
@@ -48,3 +51,11 @@ nieuwe vaardigheidstypes in `CharacterSystem.use_ability`, nieuwe uiterlijke ken
 
 De UI voor vrienden staat in `scripts/ui/friends_ui.gd`: Vrienden-tab, figuren naast de koek
 (max. 4: twee vooraan, twee achter de koek) en de welkomstpop-up.
+
+## Prestaties, uitdagingen en Roze Hemel toevoegen
+- Nieuwe prestatie: regel in `data/achievements.json`. Voorwaardetypes: `lifetime_baked`, `clicks_total`,
+  `crits_total`, `upgrades_owned`, `friends_recruited`, `friends_all`, `prestiges`, `flag`, `upgrade_owned`
+  en alle upgradevoorwaarden (`building_count`, `golden_clicked`, ...). `"secret": true` verbergt de naam.
+- Nieuwe dagelijkse opdracht: regel in `data/challenges.json` met een `metric`
+  (`clicks`, `crits`, `golden`, `buildings`, `upgrades`, `bake`, `ability`) en vier doelen per niveau.
+- Nieuwe Roze Hemel-upgrade: regel in `data/heaven.json` met `cost`, `requires`, `effects` (modifiers) en optioneel `start`.

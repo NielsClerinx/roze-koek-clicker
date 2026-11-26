@@ -17,7 +17,13 @@ Test economie, prijzen, upgrades, kliks, offline-berekening, opslaan/laden, kapo
 - Gebouwen en upgrades: pas `tools/gen_data.py` aan en draai `python3 tools/gen_data.py` (schrijft `data/*.json`).
 - Vrienden: kopieer `data/characters/_template.json` naar `data/characters/<id>.json`. Geen code nodig.
 
-## Status: v0.2 (vrienden)
+## Status: v0.3 (prestaties, uitdagingen, Roze Hemel)
+- **Prestaties**: 27 medailles (3 geheim), elk +1% productie, blijven na herglazuren.
+- **Dagelijkse uitdagingen**: elke dag 3 opdrachten (zelfde soort voor iedereen, doelen schalen mee).
+  Beloning: Roze Lintjes. 7 dagen op rij alles voltooid = bonus. Lintjes besteed je aan een productieboost.
+- **Roze Hemel**: 10 permanente upgrades voor Fondantkristallen (startgebouwen, langer offline, gouden koeken, ...).
+
+### v0.2 (vrienden)
 Vier vrienden (Niels de Koekbaas, Tim de Proever, Kapitein Jordi, De Woudbaron) met eigen figuur,
 bonus en vaardigheid. Rekruteren in de Vrienden-tab; tik op een vriend naast de koek voor zijn vaardigheid.
 

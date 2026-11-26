@@ -1,9 +1,9 @@
 # Roze Koek Clicker 🍪
 
-Humoristische incremental idle game voor Android en iOS, gebouwd met **Godot 4.3** en GDScript.
+Humoristische incremental idle game voor Android en iOS, gebouwd met **Godot 4.7** en GDScript.
 
 ## Starten
-1. Installeer [Godot 4.3](https://godotengine.org/download) (standaardversie, niet .NET).
+1. Installeer [Godot 4.7](https://godotengine.org/download) (standaardversie, niet .NET).
 2. Open Godot → *Importeren* → kies `project.godot` in deze map.
 3. Druk op **F5** om te spelen. Het venster opent in portretformaat.
 

@@ -5,8 +5,8 @@ func _ready() -> void:
 	var main = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
 	for i in 10: await get_tree().process_frame
-	main._select_tab(2)
-	for i in 5: await get_tree().process_frame
+	main.open_menu(2)
+	for i in 25: await get_tree().process_frame
 	var sc: ScrollContainer = main._pages[2]
 	print("rect ", sc.get_global_rect(), " max ", sc.get_v_scroll_bar().max_value)
 	var bought := GameState.characters.size()
@@ -19,9 +19,9 @@ func _ready() -> void:
 	for i in 3: await get_tree().process_frame
 	print("scroll_vertical ", sc.scroll_vertical)
 	# Tik op een gebouw koopt nog steeds; veeg op een gebouw koopt niets
-	main._select_tab(0)
+	main.open_menu(0)
 	GameState.cookies = 1e9
-	for i in 5: await get_tree().process_frame
+	for i in 25: await get_tree().process_frame
 	var row: Control = main._building_rows["kleine_bakker"]
 	var c := row.get_global_rect().get_center()
 	_btn(c, true); await get_tree().process_frame; _btn(c, false)

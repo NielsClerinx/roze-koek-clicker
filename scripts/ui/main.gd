@@ -47,6 +47,20 @@ var _name_taps := 0
 var _rng := RandomNumberGenerator.new()
 var _friends: FriendsUI
 var _friend_layer: Control
+var _stage: Control
+var _menu_spacer: Control
+var _menu_bar: PanelContainer
+var _menu_btn: Button
+var _sheet_clip: Control
+var _sheet: PanelContainer
+var _menu_t := 0.0
+var _menu_open := false
+var _menu_tween: Tween
+var _sheet_h := 600.0
+var _badge_upgrades := 0
+var _gear_btn: Button
+var _settings: ColorRect
+var _setting_checks: Array[CheckButton] = []
 var _achievements: AchievementsUI
 var _heaven: HeavenUI
 
@@ -64,6 +78,8 @@ func _ready() -> void:
 	EventBus.upgrade_bought.connect(func(_id): _upgrade_key = "")
 	EventBus.game_reset.connect(_on_reset)
 	get_viewport().size_changed.connect(_apply_safe_area)
+	get_tree().set_quit_on_go_back(false)
+	_menu_bar.item_rect_changed.connect(_layout_sheet)
 	var last := SaveManager.load_game()
 	if SaveManager.loaded_from_disk:
 		OfflineSystem.apply_since(last)
@@ -127,25 +143,28 @@ func _build_layout() -> void:
 	top.add_child(_buff_label)
 	set_meta("name_btn", name_btn)
 
-	# --- Speelveld
+	# --- Speelveld (krijgt het hele scherm als het menu dicht is)
 	_play = Control.new()
 	_play.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_play.size_flags_stretch_ratio = 1.0
 	_play.clip_contents = false
 	_play.resized.connect(_layout_play)
 	root.add_child(_play)
+	# Toneel: vaste verhouding binnen het speelveld, zodat koek en vrienden niet te groot worden
+	_stage = Control.new()
+	_stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_play.add_child(_stage)
 	_cookie = CookieView.new()
 	_cookie.tapped.connect(_on_cookie_tapped)
 	# Vrienden: achterste rij achter de koek, voorste rij ervoor
 	var back_layer := Control.new()
 	back_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	back_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_play.add_child(back_layer)
-	_play.add_child(_cookie)
+	_stage.add_child(back_layer)
+	_stage.add_child(_cookie)
 	_friend_layer = Control.new()
 	_friend_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_friend_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_play.add_child(_friend_layer)
+	_stage.add_child(_friend_layer)
 	_friends = FriendsUI.new()
 	add_child(_friends)
 	_friends.setup(self, _friend_layer, back_layer)
@@ -156,22 +175,55 @@ func _build_layout() -> void:
 	add_child(_heaven)
 	_heaven.setup(self)
 
-	# --- Paneel
-	var sheet := PanelContainer.new()
+	# Ruimte die het menu inneemt als het open is (wordt geanimeerd)
+	_menu_spacer = Control.new()
+	_menu_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(_menu_spacer)
+
+	# --- Menubalk onderaan met de hamburgerknop
+	_menu_bar = PanelContainer.new()
+	var bar_style := Palette.box(Palette.WHITE, 0, 10)
+	bar_style.content_margin_top = 10
+	bar_style.content_margin_bottom = 12
+	_menu_bar.add_theme_stylebox_override("panel", bar_style)
+	root.add_child(_menu_bar)
+	var bar_row := HBoxContainer.new()
+	bar_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_menu_bar.add_child(bar_row)
+	_menu_btn = Button.new()
+	_menu_btn.focus_mode = Control.FOCUS_NONE
+	_menu_btn.custom_minimum_size = Vector2(300, 64)
+	_menu_btn.add_theme_font_size_override("font_size", 24)
+	_menu_btn.add_theme_constant_override("h_separation", 14)
+	_menu_btn.icon = _hamburger_icon()
+	for st in ["normal", "hover", "pressed", "hover_pressed"]:
+		_menu_btn.add_theme_stylebox_override(st, Palette.box(Palette.PINK_DEEP if st != "pressed" else Palette.PINK_DARK, 32))
+	for c in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color"]:
+		_menu_btn.add_theme_color_override(c, Palette.WHITE)
+	_menu_btn.add_theme_color_override("icon_normal_color", Palette.WHITE)
+	_menu_btn.add_theme_color_override("icon_hover_color", Palette.WHITE)
+	_menu_btn.add_theme_color_override("icon_pressed_color", Palette.WHITE)
+	_menu_btn.pressed.connect(toggle_menu)
+	bar_row.add_child(_menu_btn)
+
+	# --- Menu (schuift omhoog vanachter de menubalk)
+	_sheet_clip = Control.new()
+	_sheet_clip.clip_contents = true
+	_sheet_clip.visible = false
+	add_child(_sheet_clip)
+	_sheet = PanelContainer.new()
 	var sheet_style := Palette.box(Palette.WHITE, 34, 14)
 	sheet_style.corner_radius_bottom_left = 0
 	sheet_style.corner_radius_bottom_right = 0
 	sheet_style.content_margin_top = 16
 	sheet_style.content_margin_left = 16
 	sheet_style.content_margin_right = 16
-	sheet_style.content_margin_bottom = 8
-	sheet.add_theme_stylebox_override("panel", sheet_style)
-	sheet.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	sheet.size_flags_stretch_ratio = 1.15
-	root.add_child(sheet)
+	sheet_style.content_margin_bottom = 4
+	_sheet.add_theme_stylebox_override("panel", sheet_style)
+	_sheet_clip.add_child(_sheet)
 	var sv := VBoxContainer.new()
 	sv.add_theme_constant_override("separation", 12)
-	sheet.add_child(sv)
+	_sheet.add_child(sv)
 
 	var tabs := HBoxContainer.new()
 	tabs.add_theme_constant_override("separation", 8)
@@ -230,6 +282,150 @@ func _build_layout() -> void:
 	_toast.add_child(_toast_label)
 	_toast.modulate.a = 0.0
 	add_child(_toast)
+	_build_settings()
+
+# ------------------------------------------------------------ instellingen
+
+func _gear_icon() -> ImageTexture:
+	var n := 40
+	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
+	var c := Vector2(n, n) * 0.5
+	for y in n:
+		for x in n:
+			var d := Vector2(x + 0.5, y + 0.5) - c
+			var ang := d.angle()
+			var tooth := 1.0 if fmod(ang / TAU * 8.0 + 8.25, 1.0) < 0.5 else 0.0
+			var r_out: float = 14.0 + 5.0 * tooth
+			var r := d.length()
+			var a: float = clampf(r_out - r + 0.5, 0.0, 1.0) * clampf(r - 6.5 + 0.5, 0.0, 1.0)
+			img.set_pixel(x, y, Color(1, 1, 1, a))
+	return ImageTexture.create_from_image(img)
+
+## Schakelaar-icoon (pil met bolletje), groter en duidelijker dan het standaard vinkje.
+func _toggle_icon(on: bool) -> ImageTexture:
+	var w := 76
+	var h := 42
+	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	var bg := Palette.PINK_DEEP if on else Color("#D9C3CB")
+	var r := h * 0.5
+	var knob_x := w - r if on else r
+	for y in h:
+		for x in w:
+			var p := Vector2(x + 0.5, y + 0.5)
+			var cx := clampf(p.x, r, w - r)
+			var a := clampf(r - p.distance_to(Vector2(cx, r)) + 0.5, 0.0, 1.0)
+			var col := bg
+			var kd := p.distance_to(Vector2(knob_x, r))
+			var ka := clampf(r - 5.0 - kd + 0.5, 0.0, 1.0)
+			col = col.lerp(Color.WHITE, ka)
+			col.a = a
+			img.set_pixel(x, y, col)
+	return ImageTexture.create_from_image(img)
+
+func _build_settings() -> void:
+	# Tandwiel rechtsboven
+	_gear_btn = Button.new()
+	_gear_btn.icon = _gear_icon()
+	_gear_btn.focus_mode = Control.FOCUS_NONE
+	_gear_btn.custom_minimum_size = Vector2(64, 64)
+	_gear_btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	for st in ["normal", "hover", "pressed", "hover_pressed"]:
+		_gear_btn.add_theme_stylebox_override(st, Palette.box(Palette.PINK_LIGHT if st != "pressed" else Palette.PINK, 32))
+	for st in ["icon_normal_color", "icon_hover_color", "icon_pressed_color"]:
+		_gear_btn.add_theme_color_override(st, Palette.PINK_DARK)
+	_gear_btn.pressed.connect(open_settings)
+	add_child(_gear_btn)
+
+	_settings = ColorRect.new()
+	_settings.color = Color(0.35, 0.1, 0.2, 0.45)
+	_settings.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_settings.visible = false
+	_settings.gui_input.connect(func(e):
+		if e is InputEventMouseButton and e.pressed:
+			close_settings())
+	add_child(_settings)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_settings.add_child(center)
+	var panel := PanelContainer.new()
+	var ps := Palette.box(Palette.WHITE, 34, 16)
+	ps.content_margin_left = 30; ps.content_margin_right = 30
+	ps.content_margin_top = 26; ps.content_margin_bottom = 26
+	panel.add_theme_stylebox_override("panel", ps)
+	panel.custom_minimum_size = Vector2(minf(get_viewport_rect().size.x - 60, 560), 0)
+	center.add_child(panel)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 14)
+	panel.add_child(v)
+	var t := Palette.label("Instellingen", 36, Palette.PINK_DEEP, Palette.title_font())
+	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(t)
+	var toggles := [
+		["Geluidseffecten", AudioManager.sound_on(), AudioManager.set_sound],
+		["Achtergrondmuziek", AudioManager.music_on(), AudioManager.set_music],
+		["Trillen bij kritieke klik", bool(GameState.settings.get("vibration", true)),
+			func(on): GameState.settings["vibration"] = on],
+	]
+	_setting_checks.clear()
+	var icon_on := _toggle_icon(true)
+	var icon_off := _toggle_icon(false)
+	for row in toggles:
+		var cb := CheckButton.new()
+		cb.text = row[0]
+		cb.focus_mode = Control.FOCUS_NONE
+		cb.button_pressed = row[1]
+		cb.toggled.connect(row[2])
+		cb.add_theme_font_override("font", Palette.body_bold())
+		cb.add_theme_font_size_override("font_size", 22)
+		cb.custom_minimum_size = Vector2(0, 56)
+		cb.add_theme_icon_override("checked", icon_on)
+		cb.add_theme_icon_override("unchecked", icon_off)
+		cb.add_theme_icon_override("checked_mirrored", icon_on)
+		cb.add_theme_icon_override("unchecked_mirrored", icon_off)
+		v.add_child(cb)
+		_setting_checks.append(cb)
+	var save_btn := Button.new()
+	save_btn.text = "Nu opslaan"
+	save_btn.custom_minimum_size = Vector2(0, 56)
+	save_btn.focus_mode = Control.FOCUS_NONE
+	save_btn.pressed.connect(func(): show_toast("Opgeslagen!" if SaveManager.save_game() else "Opslaan mislukt"))
+	v.add_child(save_btn)
+	_wipe_btn = Button.new()
+	_wipe_btn.text = "Spel wissen"
+	_wipe_btn.custom_minimum_size = Vector2(0, 56)
+	_wipe_btn.focus_mode = Control.FOCUS_NONE
+	_wipe_btn.add_theme_color_override("font_color", Color("#C0392B"))
+	_wipe_btn.pressed.connect(_on_wipe_pressed)
+	v.add_child(_wipe_btn)
+	var ok := Button.new()
+	ok.text = "Klaar"
+	ok.custom_minimum_size = Vector2(0, 62)
+	ok.focus_mode = Control.FOCUS_NONE
+	ok.add_theme_stylebox_override("normal", Palette.box(Palette.PINK_DEEP, 24))
+	ok.add_theme_stylebox_override("hover", Palette.box(Palette.PINK_DEEP.lightened(0.1), 24))
+	ok.add_theme_stylebox_override("pressed", Palette.box(Palette.PINK_DARK, 24))
+	for c in ["font_color", "font_hover_color", "font_pressed_color"]:
+		ok.add_theme_color_override(c, Palette.WHITE)
+	ok.add_theme_font_size_override("font_size", 26)
+	ok.pressed.connect(close_settings)
+	v.add_child(ok)
+	var ver := Palette.label("Roze Koek Clicker v%s" % ProjectSettings.get_setting("application/config/version", "0.1"), 16, Palette.CHOCO_SOFT)
+	ver.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(ver)
+
+func open_settings() -> void:
+	_setting_checks[0].set_pressed_no_signal(AudioManager.sound_on())
+	_setting_checks[1].set_pressed_no_signal(AudioManager.music_on())
+	_setting_checks[2].set_pressed_no_signal(bool(GameState.settings.get("vibration", true)))
+	_settings.visible = true
+	move_child(_settings, -1)
+
+func close_settings() -> void:
+	_settings.visible = false
+
+func is_settings_open() -> bool:
+	return _settings.visible
 
 func _scroll_page() -> Array:
 	var sc := ScrollContainer.new()
@@ -314,28 +510,12 @@ func _build_more_page() -> Control:
 	_prestige_btn.pressed.connect(_on_prestige_pressed)
 	list.add_child(_prestige_btn)
 	_heaven.build_section(list)
-	list.add_child(Palette.label("Instellingen", 26, Palette.CHOCO, Palette.title_font()))
-	var vib := CheckButton.new()
-	vib.text = "Trillen bij kritieke klik"
-	vib.focus_mode = Control.FOCUS_NONE
-	vib.button_pressed = bool(GameState.settings.get("vibration", true))
-	vib.toggled.connect(func(on): GameState.settings["vibration"] = on)
-	vib.add_theme_font_override("font", Palette.body_bold())
-	list.add_child(vib)
-	set_meta("vib", vib)
-	var save_btn := Button.new()
-	save_btn.text = "Nu opslaan"
-	save_btn.custom_minimum_size = Vector2(0, 56)
-	save_btn.focus_mode = Control.FOCUS_NONE
-	save_btn.pressed.connect(func(): show_toast("Opgeslagen!" if SaveManager.save_game() else "Opslaan mislukt"))
-	list.add_child(save_btn)
-	_wipe_btn = Button.new()
-	_wipe_btn.text = "Spel wissen"
-	_wipe_btn.custom_minimum_size = Vector2(0, 56)
-	_wipe_btn.focus_mode = Control.FOCUS_NONE
-	_wipe_btn.add_theme_color_override("font_color", Color("#C0392B"))
-	_wipe_btn.pressed.connect(_on_wipe_pressed)
-	list.add_child(_wipe_btn)
+	var open_set := Button.new()
+	open_set.text = "Instellingen (geluid, muziek, opslaan)"
+	open_set.custom_minimum_size = Vector2(0, 56)
+	open_set.focus_mode = Control.FOCUS_NONE
+	open_set.pressed.connect(open_settings)
+	list.add_child(open_set)
 	var ver := Palette.label("Roze Koek Clicker v%s" % ProjectSettings.get_setting("application/config/version", "0.1"), 16, Palette.CHOCO_SOFT)
 	ver.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	list.add_child(ver)
@@ -355,12 +535,95 @@ func _apply_safe_area() -> void:
 	_safe.add_theme_constant_override("margin_bottom", int(bottom))
 	_safe.add_theme_constant_override("margin_left", 0)
 	_safe.add_theme_constant_override("margin_right", 0)
+	_layout_sheet.call_deferred()
+	if _gear_btn:
+		_gear_btn.position = Vector2(get_viewport_rect().size.x - 64 - 14, top + 4)
 
 func _layout_play() -> void:
-	var s := minf(_play.size.x, _play.size.y)
+	# Toneel nooit hoger dan 0.95 x de breedte: anders worden koek en vrienden reuzen
+	var ps := _play.size
+	var h := minf(ps.y, ps.x * 0.95)
+	_stage.size = Vector2(ps.x, h)
+	_stage.position = Vector2(0, (ps.y - h) * 0.5)
+	var s := minf(ps.x * 0.8, h * 0.92)
 	_cookie.size = Vector2(s, s)
-	_cookie.position = (_play.size - _cookie.size) * 0.5
+	_cookie.position = (_stage.size - _cookie.size) * 0.5
 	_cookie.pivot_offset = _cookie.size * 0.5
+
+# ------------------------------------------------------------ menu
+
+func _hamburger_icon() -> ImageTexture:
+	var img := Image.create(30, 24, false, Image.FORMAT_RGBA8)
+	img.fill(Color(1, 1, 1, 0))
+	for i in 3:
+		img.fill_rect(Rect2i(0, i * 10, 30, 4), Color.WHITE)
+	return ImageTexture.create_from_image(img)
+
+func is_menu_open() -> bool:
+	return _menu_open
+
+func open_menu(tab := -1) -> void:
+	if tab >= 0:
+		_select_tab(tab)
+	_animate_menu(true)
+
+func close_menu() -> void:
+	_animate_menu(false)
+
+func toggle_menu() -> void:
+	_animate_menu(not _menu_open)
+
+func _animate_menu(open: bool) -> void:
+	_menu_open = open
+	_update_menu_button()
+	if _menu_tween:
+		_menu_tween.kill()
+	_menu_tween = create_tween()
+	_menu_tween.tween_method(_set_menu_t, _menu_t, 1.0 if open else 0.0, 0.25) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	if open:
+		_refresh(true)
+
+func _set_menu_t(t: float) -> void:
+	_menu_t = t
+	_layout_sheet()
+
+## Zet het menu en de ruimte erboven op de juiste plek voor de huidige stand (_menu_t).
+func _layout_sheet() -> void:
+	if _sheet == null:
+		return
+	var vp := size
+	var bar_top := _menu_bar.get_global_rect().position.y
+	if _menu_bar.size.y <= 0.0:
+		return
+	_sheet_h = roundf(vp.y * 0.5)
+	var shown := roundf(_sheet_h * _menu_t)
+	_menu_spacer.custom_minimum_size = Vector2(0, shown)
+	# De balk schuift niet: hij staat onderaan, dus de bovenkant blijft gelijk
+	_sheet_clip.visible = shown > 0.5
+	_sheet_clip.position = Vector2(0, bar_top - shown)
+	_sheet_clip.size = Vector2(vp.x, shown)
+	_sheet.position = Vector2.ZERO
+	_sheet.size = Vector2(vp.x, _sheet_h)
+
+func _update_menu_button() -> void:
+	if _menu_btn == null:
+		return
+	if _menu_open:
+		_menu_btn.text = "Sluiten"
+		return
+	var n := _badge_upgrades + _achievements.claimable()
+	_menu_btn.text = "Menu" + ("  (%d)" % n if n > 0 else "")
+
+func _notification(what: int) -> void:
+	# Terugknop van Android: eerst het menu sluiten
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		if _settings and _settings.visible:
+			close_settings()
+		elif _menu_open:
+			close_menu()
+		else:
+			get_tree().quit()
 
 # ------------------------------------------------------------ interactie
 
@@ -571,6 +834,14 @@ func _refresh(force: bool) -> void:
 		_friends.refresh_page()
 	if _pages[3].visible or force:
 		_achievements.refresh_page()
+	# Tellers op de tabs en de menuknop: betaalbare upgrades en op te halen prestaties
+	var affordable := 0
+	for u in UpgradeSystem.available():
+		if GameState.cookies >= float(u.cost):
+			affordable += 1
+	_badge_upgrades = affordable
+	_tab_buttons[1].text = "Upgrades" + (" (%d)" % affordable if affordable > 0 else "")
+	_update_menu_button()
 	var claim := _achievements.claimable()
 	_tab_buttons[3].text = "Prestaties" + (" (%d)" % claim if claim > 0 else "")
 	if _pages[4].visible:
@@ -633,12 +904,6 @@ func _refresh_upgrades() -> void:
 	for id in _upgrade_rows.keys():
 		var u = GameData.upgrade_by_id[id]
 		_upgrade_rows[id].set_affordable(GameState.cookies >= float(u.cost))
-	# Badge op de tab: aantal betaalbare upgrades
-	var affordable := 0
-	for u in avail:
-		if GameState.cookies >= float(u.cost):
-			affordable += 1
-	_tab_buttons[1].text = "Upgrades" + (" (%d)" % affordable if affordable > 0 else "")
 
 func _upgrade_kind(u: Dictionary) -> String:
 	var id: String = u.id

@@ -26,7 +26,7 @@ var play_seconds: float = 0.0
 var last_active_unix: float = 0.0
 var created_unix: float = 0.0
 var bakery_name: String = "Mijn Roze Bakkerij"
-var settings: Dictionary = {"sound": true, "vibration": true}
+var settings: Dictionary = {"sound": true, "music": true, "vibration": true}
 
 func _ready() -> void:
 	reset_all()

@@ -14,7 +14,7 @@ func _ready() -> void:
 	for u in ["click_1", "click_2", "kleine_bakker_t1", "kleine_bakker_t2", "bakkerij_t1"]:
 		GameState.upgrades[u] = true
 	GameState.bakery_name = "Bakkerij De Roze Droom"
-	for id in ["niels", "timothy", "jordi", "vriend_1"]:
+	for id in ["niels", "timothy", "jordi", "vriend_1", "kattenkoningin"]:
 		GameState.characters[id] = {"level": 1, "ready_at": 0.0}
 	GameState.characters["timothy"]["ready_at"] = Time.get_unix_time_from_system() + 222
 	GameState.clicks_total = 740

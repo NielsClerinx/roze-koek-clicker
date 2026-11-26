@@ -159,7 +159,8 @@ func layout_field() -> void:
 	var fs := field.size
 	var slots := [
 		[Vector2(0.0, 1.0), 0.56], [Vector2(1.0, 1.0), 0.56],
-		[Vector2(0.06, 0.62), 0.42], [Vector2(0.94, 0.62), 0.42]]
+		[Vector2(0.06, 0.62), 0.42], [Vector2(0.94, 0.62), 0.42],
+		[Vector2(0.22, 0.42), 0.3], [Vector2(0.78, 0.42), 0.3]]
 	for i in ids.size():
 		var e: Dictionary = _field_figs[ids[i]]
 		var fig = e.figure

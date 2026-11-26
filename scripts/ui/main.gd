@@ -8,6 +8,7 @@ const GoldenCookie := preload("res://scripts/ui/golden_cookie.gd")
 const FriendsUI := preload("res://scripts/ui/friends_ui.gd")
 const AchievementsUI := preload("res://scripts/ui/achievements_ui.gd")
 const HeavenUI := preload("res://scripts/ui/heaven_ui.gd")
+const DragScroll := preload("res://scripts/ui/drag_scroll.gd")
 
 const TAB_NAMES := ["Gebouwen", "Upgrades", "Vrienden", "Prestaties", "Meer"]
 const BUY_AMOUNTS := [1, 10, 100, 0]   # 0 = Max
@@ -205,9 +206,13 @@ func _build_layout() -> void:
 	pages.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	sv.add_child(pages)
 	_pages = [_build_buildings_page(), _build_upgrades_page(), _friends.build_page(), _achievements.build_page(), _build_more_page()]
+	var drag := DragScroll.new()
+	add_child(drag)
 	for p in _pages:
 		p.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		pages.add_child(p)
+		for sc in p.find_children("*", "ScrollContainer", true, false) + ([p] if p is ScrollContainer else []):
+			drag.register(sc)
 
 	# --- Effectlaag (zwevende getallen, toast, gouden koek)
 	_fx_layer = Control.new()

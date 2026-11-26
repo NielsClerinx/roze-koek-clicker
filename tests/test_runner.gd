@@ -8,6 +8,7 @@ var _passes := 0
 func _ready() -> void:
 	SaveManager.slot = "test_save"
 	AchievementSystem.enabled = false
+	AudioManager.enabled = false
 	GameState.reset_all()
 	EventBus.game_reset.emit()
 	_test_number_format()
@@ -26,6 +27,7 @@ func _ready() -> void:
 	_test_heaven()
 	_test_save_migration()
 	_test_instant_bake()
+	_test_audio_settings()
 	print("\n%d geslaagd, %d mislukt" % [_passes, _fails])
 	get_tree().quit(1 if _fails > 0 else 0)
 
@@ -359,4 +361,23 @@ func _test_instant_bake() -> void:
 	check(approx(GameState.cookies - before, maxf(k * 1200.0, 100.0)), "20 minuten productie")
 	check(approx(Economy.offline_cap_seconds(), 5.0 * 3600.0), "offline 2 uur langer")
 	RandomEventSystem.reset()
+	SaveManager.wipe()
+
+func _test_audio_settings() -> void:
+	check(AudioManager.sound_on() and AudioManager.music_on(), "geluid en muziek staan standaard aan")
+	AudioManager.set_music(false)
+	AudioManager.set_sound(false)
+	var d := GameState.to_dict()
+	GameState.settings = {"sound": true, "music": true, "vibration": true}
+	GameState.from_dict(d)
+	check(not AudioManager.music_on() and not AudioManager.sound_on(), "geluidsinstellingen worden bewaard")
+	check(not AudioManager.is_music_playing(), "muziek speelt niet als ze uit staat")
+	AudioManager.play("klik")   # mag niet crashen als geluid uit staat
+	# Oude save zonder "music": muziek blijft aan
+	GameState.settings = {"sound": true, "music": true, "vibration": true}
+	var old := GameState.to_dict()
+	old.settings = {"sound": true, "vibration": false}
+	GameState.from_dict(old)
+	check(AudioManager.music_on(), "oude save zonder muziekinstelling: muziek aan")
+	GameState.settings = {"sound": true, "music": true, "vibration": true}
 	SaveManager.wipe()

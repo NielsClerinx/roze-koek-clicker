@@ -60,6 +60,9 @@ var _badge_upgrades := 0
 var _gear_btn: Button
 var _settings: ColorRect
 var _setting_checks: Array[CheckButton] = []
+var _code_status: Label
+var _code_confirm: HBoxContainer
+var _pending_code: Dictionary = {}
 var _achievements: AchievementsUI
 var _heaven: HeavenUI
 
@@ -380,10 +383,46 @@ func _build_settings() -> void:
 		cb.add_theme_icon_override("unchecked_mirrored", icon_off)
 		v.add_child(cb)
 		_setting_checks.append(cb)
-	var auto := Palette.label("Je voortgang wordt automatisch bewaard.", 17, Palette.CHOCO_SOFT)
+	var auto := Palette.label("Je voortgang wordt automatisch bewaard. Wil je je spel meenemen naar een andere gsm of van de webversie naar de app? Gebruik dan een bewaarcode.", 17, Palette.CHOCO_SOFT)
 	auto.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	auto.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	v.add_child(auto)
+	var code_row := HBoxContainer.new()
+	code_row.add_theme_constant_override("separation", 10)
+	v.add_child(code_row)
+	for pair in [["Code kopiëren", _on_copy_code], ["Code inladen", _on_load_code]]:
+		var cb := Button.new()
+		cb.text = pair[0]
+		cb.custom_minimum_size = Vector2(0, 56)
+		cb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cb.focus_mode = Control.FOCUS_NONE
+		cb.clip_text = true
+		cb.pressed.connect(pair[1])
+		code_row.add_child(cb)
+	_code_status = Palette.label("", 17, Palette.CHOCO, Palette.body_bold())
+	_code_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_code_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_code_status.visible = false
+	v.add_child(_code_status)
+	_code_confirm = HBoxContainer.new()
+	_code_confirm.add_theme_constant_override("separation", 10)
+	_code_confirm.visible = false
+	v.add_child(_code_confirm)
+	var yes := Button.new()
+	yes.text = "Ja, inladen"
+	yes.custom_minimum_size = Vector2(0, 56)
+	yes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	yes.focus_mode = Control.FOCUS_NONE
+	yes.add_theme_color_override("font_color", Color("#C0392B"))
+	yes.pressed.connect(_confirm_load_code)
+	_code_confirm.add_child(yes)
+	var no := Button.new()
+	no.text = "Annuleren"
+	no.custom_minimum_size = Vector2(0, 56)
+	no.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	no.focus_mode = Control.FOCUS_NONE
+	no.pressed.connect(func(): _set_code_status("", false))
+	_code_confirm.add_child(no)
 	_wipe_btn = Button.new()
 	_wipe_btn.text = "Spel wissen"
 	_wipe_btn.custom_minimum_size = Vector2(0, 56)
@@ -407,7 +446,64 @@ func _build_settings() -> void:
 	ver.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(ver)
 
+# ------------------------------------------------------------ bewaarcode
+
+func _set_code_status(msg: String, error: bool, confirm := false) -> void:
+	_code_status.text = msg
+	_code_status.visible = msg != ""
+	_code_status.add_theme_color_override("font_color", Color("#C0392B") if error else Palette.CHOCO)
+	_code_confirm.visible = confirm
+	if not confirm:
+		_pending_code = {}
+
+func _on_copy_code() -> void:
+	var code := SaveManager.export_code()
+	if OS.has_feature("web"):
+		# Op iPhone mag een spel niet altijd zelf naar het klembord schrijven: we proberen het,
+		# en tonen de code ook in een venster waar je ze zelf kan kopiëren.
+		JavaScriptBridge.eval("try { navigator.clipboard.writeText('%s').catch(function(){}); } catch (e) {}" % code)
+		JavaScriptBridge.eval("window.prompt('Je bewaarcode. Selecteer alles en kopieer:', '%s');" % code)
+		_set_code_status("Bewaar de code ergens veilig (bv. in een notitie) en plak ze in je andere toestel met \"Code inladen\".", false)
+	else:
+		DisplayServer.clipboard_set(code)
+		_set_code_status("Bewaarcode gekopieerd! Plak ze in je andere toestel met \"Code inladen\".", false)
+
+func _on_load_code() -> void:
+	var text := ""
+	if OS.has_feature("web"):
+		var r = JavaScriptBridge.eval("window.prompt('Plak hier je bewaarcode:', '') || ''")
+		text = str(r) if r != null else ""
+	else:
+		text = DisplayServer.clipboard_get()
+		if text.strip_edges().is_empty():
+			_set_code_status("Je klembord is leeg. Kopieer eerst je bewaarcode en tik dan opnieuw op \"Code inladen\".", true)
+			return
+	if text.strip_edges().is_empty():
+		_set_code_status("", false)
+		return
+	load_code_text(text)
+
+## Controleert een geplakte code en vraagt bevestiging (ook gebruikt door de tests).
+func load_code_text(text: String) -> bool:
+	var res := SaveManager.parse_code(text)
+	if res.has("error"):
+		_set_code_status(res.error, true)
+		return false
+	_set_code_status("Dit vervangt je huidige spel door:\n%s\nZeker?" % SaveManager.describe(res.data), false, true)
+	_pending_code = res.data
+	return true
+
+func _confirm_load_code() -> void:
+	if _pending_code.is_empty():
+		return
+	SaveManager.import_data(_pending_code)
+	_set_code_status("", false)
+	close_settings()
+	close_menu()
+	show_toast("Bewaarcode ingeladen. Welkom terug in %s!" % GameState.bakery_name)
+
 func open_settings() -> void:
+	_set_code_status("", false)
 	_setting_checks[0].set_pressed_no_signal(AudioManager.sound_on())
 	_setting_checks[1].set_pressed_no_signal(AudioManager.music_on())
 	_setting_checks[2].set_pressed_no_signal(bool(GameState.settings.get("vibration", true)))

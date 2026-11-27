@@ -28,6 +28,7 @@ func _ready() -> void:
 	_test_save_migration()
 	_test_instant_bake()
 	_test_audio_settings()
+	_test_save_code()
 	print("\n%d geslaagd, %d mislukt" % [_passes, _fails])
 	get_tree().quit(1 if _fails > 0 else 0)
 
@@ -379,5 +380,39 @@ func _test_audio_settings() -> void:
 	old.settings = {"sound": true, "vibration": false}
 	GameState.from_dict(old)
 	check(AudioManager.music_on(), "oude save zonder muziekinstelling: muziek aan")
+	GameState.settings = {"sound": true, "music": true, "vibration": true}
+	SaveManager.wipe()
+
+func _test_save_code() -> void:
+	GameState.reset_all()
+	GameState.cookies = 12345.0
+	GameState.buildings["oven"] = 3
+	GameState.bakery_name = "Codebakkerij"
+	GameState.characters["niels"] = {"level": 2, "ready_at": 0.0}
+	GameState.settings["music"] = true
+	var code := SaveManager.export_code()
+	check(code.begins_with("RKC1."), "bewaarcode heeft herkenbaar begin")
+	# Andere toestand, andere instellingen; dan inladen
+	GameState.reset_all()
+	GameState.settings["music"] = false
+	var res := SaveManager.parse_code("  " + code.substr(0, 20) + "\n" + code.substr(20) + " ")
+	check(res.has("data"), "bewaarcode met spaties en regeleinde wordt gelezen")
+	SaveManager.import_data(res.data)
+	check(GameState.cookies == 12345.0 and GameState.count("oven") == 3, "bewaarcode zet koeken en gebouwen terug")
+	check(GameState.bakery_name == "Codebakkerij" and GameState.characters.has("niels"), "bewaarcode zet naam en vrienden terug")
+	check(GameState.settings.get("music") == false, "eigen geluidsinstellingen blijven behouden")
+	check(absf(GameState.last_active_unix - Time.get_unix_time_from_system()) < 5.0, "geen offline-opbrengst na inladen")
+	check(SaveManager.parse_code("").has("error"), "lege code geweigerd")
+	check(SaveManager.parse_code("hallo").has("error"), "vreemde tekst geweigerd")
+	check(SaveManager.parse_code(code.substr(0, code.length() - 30)).has("error"), "afgeknipte code geweigerd")
+	var parts := code.split(".")
+	check(SaveManager.parse_code(parts[0] + "." + parts[1] + ".00000000").has("error"), "fout controlegetal geweigerd")
+	var mid := code.length() / 2
+	var flipped := code.substr(0, mid) + ("A" if code[mid] != "A" else "B") + code.substr(mid + 1)
+	check(SaveManager.parse_code(flipped).has("error"), "veranderde code geweigerd")
+	var future := {"version": 99, "cookies": 1}
+	var fj := JSON.stringify(future)
+	var fcode: String = SaveManager.CODE_PREFIX + Marshalls.raw_to_base64(fj.to_utf8_buffer().compress(FileAccess.COMPRESSION_GZIP)) + "." + SaveManager._checksum(fj)
+	check(SaveManager.parse_code(fcode).has("error"), "code uit nieuwere versie geweigerd")
 	GameState.settings = {"sound": true, "music": true, "vibration": true}
 	SaveManager.wipe()

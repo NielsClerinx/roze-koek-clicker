@@ -47,7 +47,6 @@ var _name_taps := 0
 var _rng := RandomNumberGenerator.new()
 var _friends: FriendsUI
 var _friend_layer: Control
-var _stage: Control
 var _menu_spacer: Control
 var _menu_bar: PanelContainer
 var _menu_btn: Button
@@ -149,22 +148,18 @@ func _build_layout() -> void:
 	_play.clip_contents = false
 	_play.resized.connect(_layout_play)
 	root.add_child(_play)
-	# Toneel: vaste verhouding binnen het speelveld, zodat koek en vrienden niet te groot worden
-	_stage = Control.new()
-	_stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_play.add_child(_stage)
 	_cookie = CookieView.new()
 	_cookie.tapped.connect(_on_cookie_tapped)
 	# Vrienden: achterste rij achter de koek, voorste rij ervoor
 	var back_layer := Control.new()
 	back_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	back_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_stage.add_child(back_layer)
-	_stage.add_child(_cookie)
+	_play.add_child(back_layer)
+	_play.add_child(_cookie)
 	_friend_layer = Control.new()
 	_friend_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_friend_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_stage.add_child(_friend_layer)
+	_play.add_child(_friend_layer)
 	_friends = FriendsUI.new()
 	add_child(_friends)
 	_friends.setup(self, _friend_layer, back_layer)
@@ -182,9 +177,9 @@ func _build_layout() -> void:
 
 	# --- Menubalk onderaan met de hamburgerknop
 	_menu_bar = PanelContainer.new()
-	var bar_style := Palette.box(Palette.WHITE, 0, 10)
-	bar_style.content_margin_top = 10
-	bar_style.content_margin_bottom = 12
+	var bar_style := StyleBoxEmpty.new()
+	bar_style.content_margin_top = 8
+	bar_style.content_margin_bottom = 14
 	_menu_bar.add_theme_stylebox_override("panel", bar_style)
 	root.add_child(_menu_bar)
 	var bar_row := HBoxContainer.new()
@@ -385,12 +380,10 @@ func _build_settings() -> void:
 		cb.add_theme_icon_override("unchecked_mirrored", icon_off)
 		v.add_child(cb)
 		_setting_checks.append(cb)
-	var save_btn := Button.new()
-	save_btn.text = "Nu opslaan"
-	save_btn.custom_minimum_size = Vector2(0, 56)
-	save_btn.focus_mode = Control.FOCUS_NONE
-	save_btn.pressed.connect(func(): show_toast("Opgeslagen!" if SaveManager.save_game() else "Opslaan mislukt"))
-	v.add_child(save_btn)
+	var auto := Palette.label("Je voortgang wordt automatisch bewaard.", 17, Palette.CHOCO_SOFT)
+	auto.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	auto.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	v.add_child(auto)
 	_wipe_btn = Button.new()
 	_wipe_btn.text = "Spel wissen"
 	_wipe_btn.custom_minimum_size = Vector2(0, 56)
@@ -511,7 +504,7 @@ func _build_more_page() -> Control:
 	list.add_child(_prestige_btn)
 	_heaven.build_section(list)
 	var open_set := Button.new()
-	open_set.text = "Instellingen (geluid, muziek, opslaan)"
+	open_set.text = "Instellingen (geluid, muziek, trillen)"
 	open_set.custom_minimum_size = Vector2(0, 56)
 	open_set.focus_mode = Control.FOCUS_NONE
 	open_set.pressed.connect(open_settings)
@@ -540,15 +533,28 @@ func _apply_safe_area() -> void:
 		_gear_btn.position = Vector2(get_viewport_rect().size.x - 64 - 14, top + 4)
 
 func _layout_play() -> void:
-	# Toneel nooit hoger dan 0.95 x de breedte: anders worden koek en vrienden reuzen
 	var ps := _play.size
-	var h := minf(ps.y, ps.x * 0.95)
-	_stage.size = Vector2(ps.x, h)
-	_stage.position = Vector2(0, (ps.y - h) * 0.5)
-	var s := minf(ps.x * 0.8, h * 0.92)
+	var s: float
+	var center: Vector2
+	if is_play_tall():
+		# Menu dicht: koek bovenaan, vrienden eronder en ernaast in de vrije ruimte
+		s = minf(ps.x * 0.64, ps.y * 0.42)
+		center = Vector2(ps.x * 0.5, ps.y * 0.36)
+	else:
+		s = minf(ps.x * 0.8, ps.y * 0.92)
+		center = ps * 0.5
 	_cookie.size = Vector2(s, s)
-	_cookie.position = (_stage.size - _cookie.size) * 0.5
+	_cookie.position = center - _cookie.size * 0.5
 	_cookie.pivot_offset = _cookie.size * 0.5
+	if _friends:
+		_friends.layout_field()
+
+## Hoog speelveld (menu dicht) of laag (menu open).
+func is_play_tall() -> bool:
+	return _play.size.y > _play.size.x * 1.05
+
+func cookie_rect() -> Rect2:
+	return Rect2(_cookie.position, _cookie.size)
 
 # ------------------------------------------------------------ menu
 
@@ -623,6 +629,7 @@ func _notification(what: int) -> void:
 		elif _menu_open:
 			close_menu()
 		else:
+			SaveManager.save_game()
 			get_tree().quit()
 
 # ------------------------------------------------------------ interactie

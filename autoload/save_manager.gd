@@ -22,9 +22,13 @@ func _process(delta: float) -> void:
 		save_game()
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_WM_GO_BACK_REQUEST:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		save_game()
 		get_tree().quit()
+	elif what == NOTIFICATION_WM_GO_BACK_REQUEST or what == NOTIFICATION_APPLICATION_PAUSED \
+			or what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		# Terugknop (het hoofdscherm beslist of het spel sluit), app naar achtergrond of tab verlaten
+		save_game()
 
 func save_game() -> bool:
 	GameState.last_active_unix = Time.get_unix_time_from_system()

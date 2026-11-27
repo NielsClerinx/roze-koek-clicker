@@ -153,14 +153,26 @@ func _add_field_figure(id: String) -> void:
 	field.add_child(lbl)
 	_field_figs[id] = {"figure": fig, "label": lbl}
 
-## Plaatst maximaal 4 vrienden: twee vooraan in de onderhoeken, twee kleiner erachter.
+## Plaatst de vrienden in het speelveld. Menu dicht (hoog veld): drie vooraan onder de koek,
+## twee naast de koek en één erboven, allemaal goed zichtbaar. Menu open (laag veld):
+## twee vooraan in de onderhoeken, de rest kleiner achter de koek.
 func layout_field() -> void:
 	var ids := _field_figs.keys()
 	var fs := field.size
-	var slots := [
-		[Vector2(0.0, 1.0), 0.56], [Vector2(1.0, 1.0), 0.56],
-		[Vector2(0.06, 0.62), 0.42], [Vector2(0.94, 0.62), 0.42],
-		[Vector2(0.22, 0.42), 0.3], [Vector2(0.78, 0.42), 0.3]]
+	var tall: bool = main.has_method("is_play_tall") and main.is_play_tall()
+	var slots: Array
+	if tall:
+		var cr: Rect2 = main.cookie_rect()
+		var side_y: float = (cr.end.y + fs.y * 0.04) / fs.y
+		slots = [
+			[Vector2(0.0, 1.0), 0.27], [Vector2(1.0, 1.0), 0.27], [Vector2(0.5, 1.0), 0.27],
+			[Vector2(0.0, side_y), 0.22], [Vector2(1.0, side_y), 0.22],
+			[Vector2(0.03, (cr.position.y + fs.y * 0.17) / fs.y), 0.16]]
+	else:
+		slots = [
+			[Vector2(0.0, 1.0), 0.56], [Vector2(1.0, 1.0), 0.56],
+			[Vector2(0.06, 0.62), 0.42], [Vector2(0.94, 0.62), 0.42],
+			[Vector2(0.22, 0.42), 0.3], [Vector2(0.78, 0.42), 0.3]]
 	for i in ids.size():
 		var e: Dictionary = _field_figs[ids[i]]
 		var fig = e.figure
@@ -168,14 +180,16 @@ func layout_field() -> void:
 			fig.visible = false
 			e.label.visible = false
 			continue
+		fig.visible = true
+		e.label.visible = true
 		var anchor: Vector2 = slots[i][0]
 		var h: float = fs.y * slots[i][1]
 		var wide: bool = fig.look.get("companion", "") != ""
 		var w := h * (1.05 if wide else 0.72)
 		fig.size = Vector2(w, h)
 		fig.position = Vector2(anchor.x * (fs.x - w), anchor.y * fs.y - h)
-		# Achterste rij achter de koek, voorste rij ervoor
-		var layer: Control = field_back if i >= 2 else field
+		# Laag veld: achterste rij achter de koek. Hoog veld: iedereen vooraan
+		var layer: Control = field_back if (i >= 2 and not tall) else field
 		if fig.get_parent() != layer:
 			fig.reparent(layer, false)
 		e.label.size = Vector2(w, 22)

@@ -153,48 +153,77 @@ func _add_field_figure(id: String) -> void:
 	field.add_child(lbl)
 	_field_figs[id] = {"figure": fig, "label": lbl}
 
-## Plaatst de vrienden in het speelveld. Menu dicht (hoog veld): drie vooraan onder de koek,
-## twee naast de koek en één erboven, allemaal goed zichtbaar. Menu open (laag veld):
-## twee vooraan in de onderhoeken, de rest kleiner achter de koek.
+## Plaatst de vrienden in het speelveld. Menu dicht (hoog veld): gelijk verdeeld in een kring
+## rond de koek, allemaal goed zichtbaar. Menu open (laag veld): twee vooraan in de
+## onderhoeken, de rest kleiner achter de koek.
 func layout_field() -> void:
 	var ids := _field_figs.keys()
 	var fs := field.size
 	var tall: bool = main.has_method("is_play_tall") and main.is_play_tall()
-	var slots: Array
 	if tall:
-		var cr: Rect2 = main.cookie_rect()
-		var side_y: float = (cr.end.y + fs.y * 0.04) / fs.y
-		slots = [
-			[Vector2(0.0, 1.0), 0.27], [Vector2(1.0, 1.0), 0.27], [Vector2(0.5, 1.0), 0.27],
-			[Vector2(0.0, side_y), 0.22], [Vector2(1.0, side_y), 0.22],
-			[Vector2(0.03, (cr.position.y + fs.y * 0.17) / fs.y), 0.16]]
-	else:
-		slots = [
-			[Vector2(0.0, 1.0), 0.56], [Vector2(1.0, 1.0), 0.56],
-			[Vector2(0.06, 0.62), 0.42], [Vector2(0.94, 0.62), 0.42],
-			[Vector2(0.22, 0.42), 0.3], [Vector2(0.78, 0.42), 0.3]]
+		_layout_ring(ids, fs)
+		return
+	var slots := [
+		[Vector2(0.0, 1.0), 0.56], [Vector2(1.0, 1.0), 0.56],
+		[Vector2(0.06, 0.62), 0.42], [Vector2(0.94, 0.62), 0.42],
+		[Vector2(0.22, 0.42), 0.3], [Vector2(0.78, 0.42), 0.3]]
 	for i in ids.size():
 		var e: Dictionary = _field_figs[ids[i]]
 		var fig = e.figure
 		if i >= slots.size():
-			fig.visible = false
-			e.label.visible = false
+			_show_fig(e, false)
 			continue
-		fig.visible = true
-		e.label.visible = true
+		_show_fig(e, true)
 		var anchor: Vector2 = slots[i][0]
 		var h: float = fs.y * slots[i][1]
-		var wide: bool = fig.look.get("companion", "") != ""
-		var w := h * (1.05 if wide else 0.72)
-		fig.size = Vector2(w, h)
-		fig.position = Vector2(anchor.x * (fs.x - w), anchor.y * fs.y - h)
-		# Laag veld: achterste rij achter de koek. Hoog veld: iedereen vooraan
-		var layer: Control = field_back if (i >= 2 and not tall) else field
-		if fig.get_parent() != layer:
-			fig.reparent(layer, false)
-		e.label.size = Vector2(w, 22)
-		# Label boven het hoofd
-		e.label.position = Vector2(fig.position.x, fig.position.y - 14)
+		var w := h * (1.05 if _is_wide(fig) else 0.72)
+		_place(e, Rect2(Vector2(anchor.x * (fs.x - w), anchor.y * fs.y - h), Vector2(w, h)),
+			field_back if i >= 2 else field)
+
+## Kring: hoek 0 is recht onder de koek, de rest gelijk verdeeld en symmetrisch.
+func _layout_ring(ids: Array, fs: Vector2) -> void:
+	var n := ids.size()
+	if n == 0:
+		return
+	var h: float = fs.y * 0.21 * minf(1.0, 6.0 / float(maxi(n, 1)) * 1.1)
+	h = minf(h, fs.y * 0.21)
+	var center := fs * 0.5
+	var max_w := h * 1.05
+	var rx: float = (fs.x - max_w) * 0.5
+	var ry: float = (fs.y - h) * 0.5 - 14.0
+	var placed: Array = []
+	for i in n:
+		var e: Dictionary = _field_figs[ids[i]]
+		_show_fig(e, true)
+		var ang: float = PI * 0.5 + (float(i) - float(n - 1) * 0.5) * TAU / float(n)
+		if n == 1:
+			ang = PI * 0.5
+		var w := h * (1.05 if _is_wide(e.figure) else 0.72)
+		var c := center + Vector2(cos(ang) * rx, sin(ang) * ry)
+		_place(e, Rect2(c - Vector2(w, h) * 0.5, Vector2(w, h)), field)
+		placed.append([c.y, e])
+	# Wie lager staat, staat vooraan
+	placed.sort_custom(func(a, b): return a[0] < b[0])
+	for p in placed:
+		field.move_child(p[1].figure, -1)
+		field.move_child(p[1].label, -1)
+
+func _is_wide(fig) -> bool:
+	return fig.look.get("companion", "") != ""
+
+func _show_fig(e: Dictionary, on: bool) -> void:
+	e.figure.visible = on
+	e.label.visible = on
+
+func _place(e: Dictionary, r: Rect2, layer: Control) -> void:
+	var fig = e.figure
+	fig.size = r.size
+	fig.position = r.position
+	if fig.get_parent() != layer:
+		fig.reparent(layer, false)
+	e.label.size = Vector2(r.size.x, 22)
+	# Label boven het hoofd
+	e.label.position = Vector2(r.position.x, r.position.y - 14)
 
 func refresh_field() -> void:
 	for id in _field_figs.keys():

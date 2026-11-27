@@ -537,9 +537,9 @@ func _layout_play() -> void:
 	var s: float
 	var center: Vector2
 	if is_play_tall():
-		# Menu dicht: koek bovenaan, vrienden eronder en ernaast in de vrije ruimte
-		s = minf(ps.x * 0.64, ps.y * 0.42)
-		center = Vector2(ps.x * 0.5, ps.y * 0.36)
+		# Menu dicht: koek in het midden, vrienden in een kring eromheen
+		s = minf(ps.x * 0.54, ps.y * 0.35)
+		center = ps * 0.5
 	else:
 		s = minf(ps.x * 0.8, ps.y * 0.92)
 		center = ps * 0.5
